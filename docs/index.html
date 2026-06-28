@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -24,11 +24,11 @@
       </div>
       <nav class="topnav" aria-label="Primary">
         <a href="#map">Map</a>
-        <a href="#patterns">Archive</a>
+        <a href="#patterns">Patterns</a>
         <a href="#compare">Compare</a>
         <a href="#why">Why</a>
         <a href="#roadmap">Roadmap</a>
-        <a href="#evidence">Evidence</a>
+        <a href="#evidence">Results</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/docs/principles.md">Principles</a>
       </nav>
@@ -42,10 +42,10 @@
             Now reading: Pattern 03
           </div>
           <p class="eyebrow">Agent System Patterns</p>
-          <h1>Reliable agent systems need controls around the model, not just better prompts.</h1>
+          <h1>Practical controls for reliable agent runs.</h1>
           <p class="hero-text">
-            This site is a compact catalog of three production-inspired control patterns:
-            decision-time guidance, self-verification, and reversible sandbox execution.
+            A compact catalog of three production-inspired runtime patterns:
+            guide the next decision, verify the result, and bound risky state changes.
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="#patterns">Explore patterns</a>
@@ -89,21 +89,21 @@
       </section>
 
       <section class="loop-strip" aria-label="Reliability loop">
-        <article>
+        <a href="patterns/decision-time-guidance.html">
           <span>01</span>
           <h2>Guide</h2>
           <p>Inject a short local rule only when the current trajectory shows a known failure shape.</p>
-        </article>
-        <article>
+        </a>
+        <a href="patterns/self-verification-loop.html">
           <span>02</span>
           <h2>Verify</h2>
           <p>Prove the output works through behavior, capture evidence, then rerun after repair.</p>
-        </article>
-        <article>
+        </a>
+        <a href="patterns/reversible-sandbox-execution.html">
           <span>03</span>
           <h2>Bound</h2>
           <p>Fork state, attempt risky work in isolation, and promote only approved diffs.</p>
-        </article>
+        </a>
       </section>
 
       <section class="section" id="latest">
@@ -131,7 +131,7 @@
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Operating Map</p>
-            <h2>Where each control belongs in an agent run.</h2>
+            <h2>Agent run map</h2>
           </div>
           <p class="section-note">
             The patterns are strongest when they are composed as a runtime system:
@@ -171,8 +171,8 @@
       <section class="section" id="patterns">
         <div class="section-head compact-head">
           <div>
-            <p class="eyebrow">The Archive</p>
-            <h2>Browse the reliability pattern library.</h2>
+            <p class="eyebrow">Pattern Library</p>
+            <h2>Pick the control you need</h2>
           </div>
           <p class="section-note">
             Each entry links to an internal detail page with diagrams,
@@ -264,8 +264,8 @@
       <section class="section" id="why">
         <div class="section-head compact-head">
           <div>
-            <p class="eyebrow">Why This Catalog?</p>
-            <h2>Built for people who want to implement the controls.</h2>
+            <p class="eyebrow">Implementation Focus</p>
+            <h2>Built to move from idea to code</h2>
           </div>
           <p class="section-note">
             A clarity-first content model tuned for an engineering repo:
@@ -305,7 +305,7 @@
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Chooser</p>
-            <h2>Which control should you reach for first?</h2>
+            <h2>Match symptom to control</h2>
           </div>
           <p class="section-note">
             This layer is original to the repo: a quick decision surface for readers who
@@ -363,7 +363,7 @@
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Roadmap</p>
-            <h2>What the catalog should grow into next.</h2>
+            <h2>Next useful additions</h2>
           </div>
         </div>
 
@@ -395,7 +395,7 @@
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Evidence</p>
-            <h2>Checked-in experiment results.</h2>
+            <h2>Experiment results</h2>
           </div>
         </div>
 
