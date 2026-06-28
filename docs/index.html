@@ -6,7 +6,7 @@
     <title>Agent System Patterns</title>
     <meta
       name="description"
-      content="A focused field guide to three agent runtime control patterns: decision-time guidance, self-verification, and reversible sandbox execution."
+      content="Engineering notes and experiments on three agent runtime patterns: decision-time guidance, self-verification, and reversible sandbox execution."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -39,38 +39,37 @@
         <div class="hero-copy">
           <div class="status-pill">
             <span></span>
-            Focused field guide
+            Engineering notes
           </div>
           <p class="eyebrow">Agent System Patterns</p>
-          <h1>Controls for agent failure modes.</h1>
+          <h1>Agent system patterns: notes and experiments.</h1>
           <p class="hero-text">
-            Three Python-first patterns: guide drifting runs, verify behavior before acceptance,
-            and sandbox risky state changes. Each comes with source notes, diagrams,
-            executable logic, and experiment output.
+            A small set of Python-first notes on guidance, verification, and sandboxed state changes.
+            Each note keeps the idea close to source material, code, diagrams, and experiment output.
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#patterns">Pick a pattern</a>
-            <a class="button button-secondary" href="#compare">Compare controls</a>
+            <a class="button button-primary" href="#patterns">Read notes</a>
+            <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns">Open repo</a>
           </div>
         </div>
 
         <aside class="hero-aside">
           <div class="metric-grid">
             <article>
-              <span>Focus</span>
-              <strong>Runtime controls</strong>
+              <span>Current set</span>
+              <strong>3 notes</strong>
             </article>
             <article>
-              <span>Examples</span>
+              <span>Code</span>
               <strong>Python-first</strong>
             </article>
             <article>
-              <span>Source trail</span>
-              <strong>Engineering posts</strong>
+              <span>References</span>
+              <strong>Replit posts</strong>
             </article>
             <article>
-              <span>Evidence</span>
-              <strong>10 experiment cases</strong>
+              <span>Experiments</span>
+              <strong>10 cases</strong>
             </article>
           </div>
           <div class="command-box">
@@ -81,7 +80,7 @@
       </section>
 
       <section class="source-band" aria-label="Engineering source signals">
-        <p>Source trail and repo evidence</p>
+        <p>References and checked artifacts</p>
         <a href="https://replit.com/blog/decision-time-guidance">Decision-time guidance</a>
         <a href="https://replit.com/blog/automated-self-testing">Automated self-testing</a>
         <a href="https://replit.com/blog/inside-replits-snapshot-engine">Snapshot engine</a>
@@ -92,30 +91,30 @@
       <section class="loop-strip" aria-label="Reliability loop">
         <a href="patterns/decision-time-guidance.html">
           <span>01</span>
-          <h2>Decision drift</h2>
-          <p>Guide the next step when the run shows repeated errors, unsafe moves, or fake progress.</p>
+          <h2>Guidance</h2>
+          <p>Inject a small, local correction when the run shows a familiar bad shape.</p>
         </a>
         <a href="patterns/self-verification-loop.html">
           <span>02</span>
-          <h2>Unproven done</h2>
-          <p>Require behavioral proof before accepting a result that only looks complete.</p>
+          <h2>Verification</h2>
+          <p>Check behavior directly instead of accepting a convincing completion claim.</p>
         </a>
         <a href="patterns/reversible-sandbox-execution.html">
           <span>03</span>
-          <h2>Risky state</h2>
-          <p>Attempt changes in isolation, then promote only the diffs that pass checks and policy.</p>
+          <h2>Sandboxing</h2>
+          <p>Try risky changes in a fork and promote only the accepted diff.</p>
         </a>
       </section>
 
       <section class="section" id="patterns">
         <div class="section-head compact-head">
           <div>
-            <p class="eyebrow">Pattern Library</p>
-            <h2>Pick the control you need</h2>
+            <p class="eyebrow">Notes</p>
+            <h2>Current notes</h2>
           </div>
           <p class="section-note">
-            Each entry is framed around a failure mode, the control boundary,
-            runnable Python, and the evidence produced by the experiments.
+            This is not a framework or checklist. It is a set of worked notes:
+            source signal, interpretation, Python logic, and experiment result.
           </p>
         </div>
 
@@ -128,13 +127,13 @@
               </div>
               <h3>Decision-Time Guidance</h3>
               <p>
-                Use when the run starts drifting: repeated errors, unsafe cleanup,
-                or fake progress. The controller injects one short correction for the next turn.
+                A note on runtime guidance: observe the trajectory, detect a known failure shape,
+                and add one short correction for the next decision.
               </p>
               <ul class="mini-list">
-                <li>Boundary: next decision.</li>
-                <li>Evidence: trajectory signals.</li>
-                <li>Output: one guidance card.</li>
+                <li>Question: when should guidance be injected?</li>
+                <li>Code: guidance card selection.</li>
+                <li>Result: 3 experiment cases.</li>
               </ul>
               <figure class="thumb-frame">
                 <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
@@ -154,13 +153,13 @@
               </div>
               <h3>Self-Verification Loop</h3>
               <p>
-                Use when the artifact looks plausible but the intended behavior has not been
-                proven. The verifier runs the scenario, captures evidence, and reruns after repair.
+                A note on verification: separate shallow checks from behavior checks, then use
+                failure evidence to repair and rerun the same scenario.
               </p>
               <ul class="mini-list">
-                <li>Boundary: acceptance.</li>
-                <li>Evidence: scenario run.</li>
-                <li>Output: pass/fail plus repair signal.</li>
+                <li>Question: what counts as done?</li>
+                <li>Code: scenario verifier.</li>
+                <li>Result: 3 experiment cases.</li>
               </ul>
               <figure class="thumb-frame">
                 <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/02-self-verification-loop/assets/shallow-vs-behavioral.svg" alt="Shallow versus behavioral verification diagram" />
@@ -180,13 +179,13 @@
               </div>
               <h3>Reversible Sandbox Execution</h3>
               <p>
-                Use when the agent needs to touch files, data, or side-effect boundaries.
-                The controller forks state, verifies the candidate, and promotes approved diffs.
+                A note on state boundaries: fork the workspace, let the agent attempt work,
+                inspect the diff, and promote only what passes policy.
               </p>
               <ul class="mini-list">
-                <li>Boundary: durable state.</li>
-                <li>Evidence: sandbox diff.</li>
-                <li>Output: promote or reject.</li>
+                <li>Question: how do we keep rollback cheap?</li>
+                <li>Code: snapshot and promotion engine.</li>
+                <li>Result: 4 experiment cases.</li>
               </ul>
               <figure class="thumb-frame">
                 <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
@@ -207,8 +206,8 @@
             <h2>Where the controls sit</h2>
           </div>
           <p class="section-note">
-            These patterns sit around different moments in a run: before the next decision,
-            before acceptance, and before durable promotion.
+            One way to place the notes in an agent run. The boundaries are approximate;
+            the experiments keep them concrete.
           </p>
         </div>
 
@@ -245,38 +244,38 @@
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Method</p>
-            <h2>How to read this repo</h2>
+            <h2>Repository shape</h2>
           </div>
           <p class="section-note">
-            The pages follow the same structure so a reader can move from the idea
-            to code, experiment output, and next implementation questions quickly.
+            Each note follows the same rough shape so the idea can be inspected,
+            challenged, and extended.
           </p>
         </div>
 
         <div class="value-grid">
           <article>
-            <h3>Failure mode first</h3>
-            <p>Each pattern starts with the concrete behavior it is meant to catch.</p>
+            <h3>Source signal</h3>
+            <p>Start from a real engineering post or system write-up.</p>
           </article>
           <article>
             <h3>Python core</h3>
             <p>The main logic is executable Python, not pseudo-architecture dressed up as a repo.</p>
           </article>
           <article>
-            <h3>Source anchored</h3>
-            <p>Each page points back to an engineering post and separates source signal from repo interpretation.</p>
+            <h3>Repo interpretation</h3>
+            <p>Separate what the source says from the implementation choices made here.</p>
           </article>
           <article>
             <h3>Experiment backed</h3>
             <p>Every pattern carries checked-in results so visitors can inspect more than claims.</p>
           </article>
           <article>
-            <h3>Decision surface</h3>
-            <p>The chooser and comparison table help readers pick a useful starting point.</p>
+            <h3>Comparison surface</h3>
+            <p>Keep a small table for deciding which note to read first.</p>
           </article>
           <article>
-            <h3>Next work visible</h3>
-            <p>The roadmap names the missing support pieces needed to turn examples into stronger harnesses.</p>
+            <h3>Open ends</h3>
+            <p>Keep missing pieces visible instead of pretending the notes are finished.</p>
           </article>
         </div>
       </section>
@@ -416,7 +415,7 @@
       </section>
 
       <footer class="footer-bar">
-        <p>A focused field guide with runnable examples, source links, and internal docs pages.</p>
+        <p>Engineering notes with runnable examples, source links, and internal docs pages.</p>
         <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns">View on GitHub</a>
       </footer>
     </main>
