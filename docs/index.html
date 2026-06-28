@@ -23,7 +23,9 @@
         <a class="brand-link" href="https://github.com/sushant-97/agent-system-patterns">agent-system-patterns</a>
       </div>
       <nav class="topnav" aria-label="Primary">
+        <a href="#map">Map</a>
         <a href="#patterns">Patterns</a>
+        <a href="#compare">Compare</a>
         <a href="#evidence">Evidence</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/docs/principles.md">Principles</a>
@@ -87,6 +89,47 @@
           <h2>Bound</h2>
           <p>Fork state, attempt risky work in isolation, and promote only approved diffs.</p>
         </article>
+      </section>
+
+      <section class="section" id="map">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Operating Map</p>
+            <h2>Where each control belongs in an agent run.</h2>
+          </div>
+          <p class="section-note">
+            The patterns are strongest when they are composed as a runtime system:
+            intervene before drift hardens, verify before acceptance, isolate before promotion.
+          </p>
+        </div>
+
+        <div class="system-map" aria-label="Agent reliability operating map">
+          <article class="map-node">
+            <span>Input</span>
+            <h3>User intent</h3>
+            <p>Task, constraints, files, tools, and expected outcome enter the harness.</p>
+          </article>
+          <article class="map-node emphasized">
+            <span>Control 01</span>
+            <h3>Guide trajectory</h3>
+            <p>Decision-time guidance fires only when the current behavior shows a known failure shape.</p>
+          </article>
+          <article class="map-node">
+            <span>Attempt</span>
+            <h3>Agent work</h3>
+            <p>The agent edits, calls tools, runs commands, and produces a candidate result.</p>
+          </article>
+          <article class="map-node emphasized">
+            <span>Control 02</span>
+            <h3>Verify behavior</h3>
+            <p>Self-verification checks the actual user outcome, captures evidence, and reruns after repair.</p>
+          </article>
+          <article class="map-node emphasized">
+            <span>Control 03</span>
+            <h3>Promote safely</h3>
+            <p>Reversible sandboxing keeps risky work isolated until policy accepts the diff.</p>
+          </article>
+        </div>
       </section>
 
       <section class="section" id="patterns">
@@ -178,6 +221,92 @@
               <a class="button button-primary" href="patterns/reversible-sandbox-execution.html">Read detail</a>
               <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">Source README</a>
             </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="compare">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Chooser</p>
+            <h2>Which control should you reach for first?</h2>
+          </div>
+          <p class="section-note">
+            This layer is original to the repo: a quick decision surface for readers who
+            want to apply the patterns, not just read about them.
+          </p>
+        </div>
+
+        <div class="comparison-grid">
+          <article>
+            <span>Symptom</span>
+            <h3>The agent keeps circling the same failed path.</h3>
+            <p>Start with <a href="patterns/decision-time-guidance.html">Decision-Time Guidance</a>. You need a local intervention before more work compounds the loop.</p>
+          </article>
+          <article>
+            <span>Symptom</span>
+            <h3>The output looks done, but the behavior is unproven.</h3>
+            <p>Start with <a href="patterns/self-verification-loop.html">Self-Verification Loop</a>. You need executable evidence before accepting completion.</p>
+          </article>
+          <article>
+            <span>Symptom</span>
+            <h3>The agent needs to touch state you cannot casually risk.</h3>
+            <p>Start with <a href="patterns/reversible-sandbox-execution.html">Reversible Sandbox Execution</a>. You need rollback and promotion gates around the attempt.</p>
+          </article>
+        </div>
+
+        <div class="decision-table" role="table" aria-label="Pattern comparison table">
+          <div class="table-row table-head" role="row">
+            <span role="columnheader">Control</span>
+            <span role="columnheader">Primary boundary</span>
+            <span role="columnheader">Evidence object</span>
+            <span role="columnheader">Failure it catches</span>
+          </div>
+          <a class="table-row" href="patterns/decision-time-guidance.html" role="row">
+            <span>Decision-Time Guidance</span>
+            <span>Next decision</span>
+            <span>Guidance card plus signal evidence</span>
+            <span>Loops, unsafe moves, fake progress</span>
+          </a>
+          <a class="table-row" href="patterns/self-verification-loop.html" role="row">
+            <span>Self-Verification Loop</span>
+            <span>Acceptance</span>
+            <span>Scenario run plus assertion evidence</span>
+            <span>Plausible output with broken behavior</span>
+          </a>
+          <a class="table-row" href="patterns/reversible-sandbox-execution.html" role="row">
+            <span>Reversible Sandbox Execution</span>
+            <span>Durable state</span>
+            <span>Sandbox diff plus merge decision</span>
+            <span>Irreversible or overbroad side effects</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Missing Pieces</p>
+            <h2>What a production version still needs.</h2>
+          </div>
+        </div>
+
+        <div class="gap-grid">
+          <article>
+            <h3>Telemetry schema</h3>
+            <p>A shared event model for tool calls, failed checks, file edits, browser actions, and state diffs.</p>
+          </article>
+          <article>
+            <h3>Regression corpus</h3>
+            <p>Known bad trajectories and golden repairs so changes to the harness do not silently weaken controls.</p>
+          </article>
+          <article>
+            <h3>Human override path</h3>
+            <p>A way to inspect suppressed guidance, rejected diffs, and verifier failures without rerunning the whole session.</p>
+          </article>
+          <article>
+            <h3>Cost budget</h3>
+            <p>Rules for when to verify deeply, when to sample, and when a cheaper structural check is enough.</p>
           </article>
         </div>
       </section>

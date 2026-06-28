@@ -24,6 +24,8 @@
       </div>
       <nav class="topnav" aria-label="Primary">
         <a href="../index.html">Home</a>
+        <a href="#mechanics">Mechanics</a>
+        <a href="#related">Related</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/experiments/results/summary.json">Results</a>
       </nav>
@@ -60,7 +62,18 @@
         <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
       </figure>
 
-      <section class="detail-grid">
+      <section class="source-strip" aria-label="Source and repo interpretation">
+        <article>
+          <span>Source signal</span>
+          <p>Replit's snapshot-engine work makes state recovery a first-class agent boundary instead of an afterthought.</p>
+        </article>
+        <article>
+          <span>Repo addition</span>
+          <p>The implementation turns that into an inspectable checkpoint, diff, invariant, and merge-policy model.</p>
+        </article>
+      </section>
+
+      <section class="detail-grid" id="overview">
         <article class="detail-card">
           <h2>Core claim</h2>
           <p>Autonomous agents need exploration room, but product systems need recovery, auditability, and explicit promotion gates.</p>
@@ -87,7 +100,7 @@
         </article>
       </section>
 
-      <section class="section detail-section">
+      <section class="section detail-section" id="mechanics">
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Logic</p>
@@ -114,7 +127,7 @@
         </div>
       </section>
 
-      <section class="section detail-section">
+      <section class="section detail-section" id="experiments">
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Verification</p>
@@ -138,6 +151,27 @@
             <h3>Competing attempts</h3>
             <p>Multiple sandboxes can be compared so the system promotes the safer or more correct candidate.</p>
           </article>
+        </div>
+      </section>
+
+      <section class="section detail-section" id="related">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Related Controls</p>
+            <h2>What to pair this with.</h2>
+          </div>
+        </div>
+        <div class="next-grid">
+          <a href="decision-time-guidance.html">
+            <span>Before sandboxing</span>
+            <strong>Decision-Time Guidance</strong>
+            <p>Use this when the agent is approaching risky actions before gathering enough evidence.</p>
+          </a>
+          <a href="self-verification-loop.html">
+            <span>Inside the sandbox</span>
+            <strong>Self-Verification Loop</strong>
+            <p>Use this to decide whether the sandbox candidate deserves promotion consideration.</p>
+          </a>
         </div>
       </section>
 

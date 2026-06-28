@@ -24,6 +24,8 @@
       </div>
       <nav class="topnav" aria-label="Primary">
         <a href="../index.html">Home</a>
+        <a href="#mechanics">Mechanics</a>
+        <a href="#related">Related</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/experiments/results/summary.json">Results</a>
       </nav>
@@ -60,7 +62,18 @@
         <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/02-self-verification-loop/assets/shallow-vs-behavioral.svg" alt="Shallow versus behavioral verification diagram" />
       </figure>
 
-      <section class="detail-grid">
+      <section class="source-strip" aria-label="Source and repo interpretation">
+        <article>
+          <span>Source signal</span>
+          <p>Replit's automated self-testing work points at a simple truth: an agent needs behavioral evidence, not just a completion claim.</p>
+        </article>
+        <article>
+          <span>Repo addition</span>
+          <p>The implementation separates shallow checks from behavioral verification so false success becomes visible and repairable.</p>
+        </article>
+      </section>
+
+      <section class="detail-grid" id="overview">
         <article class="detail-card">
           <h2>Core claim</h2>
           <p>Generated output can be convincing while still broken. The system needs a verifier that executes user intent and captures durable evidence.</p>
@@ -87,7 +100,7 @@
         </article>
       </section>
 
-      <section class="section detail-section">
+      <section class="section detail-section" id="mechanics">
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Logic</p>
@@ -114,7 +127,7 @@
         </div>
       </section>
 
-      <section class="section detail-section">
+      <section class="section detail-section" id="experiments">
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Verification</p>
@@ -134,6 +147,27 @@
             <h3>Repair rerun</h3>
             <p>After a targeted fix, the system reruns the same scenario and accepts the app only when the state mutation is real.</p>
           </article>
+        </div>
+      </section>
+
+      <section class="section detail-section" id="related">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Related Controls</p>
+            <h2>What to pair this with.</h2>
+          </div>
+        </div>
+        <div class="next-grid">
+          <a href="decision-time-guidance.html">
+            <span>Before verification</span>
+            <strong>Decision-Time Guidance</strong>
+            <p>Use this when repeated failures show the agent needs a targeted nudge before another attempt.</p>
+          </a>
+          <a href="reversible-sandbox-execution.html">
+            <span>After verification</span>
+            <strong>Reversible Sandbox Execution</strong>
+            <p>Use this when passing behavior is not enough; the diff still needs promotion policy.</p>
+          </a>
         </div>
       </section>
 

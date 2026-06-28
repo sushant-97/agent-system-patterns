@@ -24,6 +24,8 @@
       </div>
       <nav class="topnav" aria-label="Primary">
         <a href="../index.html">Home</a>
+        <a href="#mechanics">Mechanics</a>
+        <a href="#related">Related</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/experiments/results/summary.json">Results</a>
       </nav>
@@ -60,7 +62,18 @@
         <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
       </figure>
 
-      <section class="detail-grid">
+      <section class="source-strip" aria-label="Source and repo interpretation">
+        <article>
+          <span>Source signal</span>
+          <p>Replit frames guidance as a runtime intervention, not a longer prompt. This page translates that idea into a small controller design.</p>
+        </article>
+        <article>
+          <span>Repo addition</span>
+          <p>The implementation makes guidance auditable with deterministic signals, evidence payloads, cooldowns, and a hard card budget.</p>
+        </article>
+      </section>
+
+      <section class="detail-grid" id="overview">
         <article class="detail-card">
           <h2>Core claim</h2>
           <p>Static prompts degrade when every reminder is loaded up front. Guidance works better when it is situational, ephemeral, budgeted, and tied to evidence from the current run.</p>
@@ -87,7 +100,7 @@
         </article>
       </section>
 
-      <section class="section detail-section">
+      <section class="section detail-section" id="mechanics">
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Logic</p>
@@ -114,7 +127,7 @@
         </div>
       </section>
 
-      <section class="section detail-section">
+      <section class="section detail-section" id="experiments">
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Verification</p>
@@ -134,6 +147,27 @@
             <h3>Risky cleanup scenario</h3>
             <p>Unsafe-change guidance fires when the agent reaches for destructive actions without enough evidence.</p>
           </article>
+        </div>
+      </section>
+
+      <section class="section detail-section" id="related">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Related Controls</p>
+            <h2>What to pair this with.</h2>
+          </div>
+        </div>
+        <div class="next-grid">
+          <a href="self-verification-loop.html">
+            <span>Next control</span>
+            <strong>Self-Verification Loop</strong>
+            <p>Use this after guidance so the agent still has to prove the corrected output works.</p>
+          </a>
+          <a href="reversible-sandbox-execution.html">
+            <span>State boundary</span>
+            <strong>Reversible Sandbox Execution</strong>
+            <p>Use this when the guidance is protecting high-risk edits or durable state.</p>
+          </a>
         </div>
       </section>
 
