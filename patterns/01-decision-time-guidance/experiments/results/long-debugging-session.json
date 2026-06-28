@@ -1,0 +1,115 @@
+{
+  "question": "Does the controller catch repeated runtime/debugging failure?",
+  "expected": {
+    "injected": [
+      "doom_loop",
+      "diagnostic_signal"
+    ],
+    "suppressed": [
+      "mock_data_escape"
+    ]
+  },
+  "observed": {
+    "injected": [
+      {
+        "signal": "doom_loop",
+        "score": 1.0,
+        "title": "Stop the loop and ask for a fresh plan",
+        "instruction": "You appear stuck in a repeated edit/fail cycle. Pause edits, summarize the invariant you are trying to restore, and request an independent plan before continuing.",
+        "why_now": "A stuck trajectory pollutes the working context; a fresh plan can be easier to recognize than generate.",
+        "evidence": [
+          {
+            "label": "hot_file",
+            "value": "src/signup.py"
+          },
+          {
+            "label": "edits_in_recent_window",
+            "value": "3"
+          },
+          {
+            "label": "failed_checks_in_recent_window",
+            "value": "2"
+          }
+        ],
+        "ephemeral": true
+      },
+      {
+        "signal": "diagnostic_signal",
+        "score": 0.85,
+        "title": "Read the failing runtime evidence",
+        "instruction": "A repeated runtime error is present. Do not edit from memory. Inspect the latest logs, identify the exact failing component, then make one targeted change.",
+        "why_now": "Repeated errors imply the agent is guessing around a concrete runtime fact.",
+        "evidence": [
+          {
+            "label": "repeated_error",
+            "value": "TypeError: profile.email is None at signup.py:42:11"
+          },
+          {
+            "label": "occurrences_in_recent_window",
+            "value": "2"
+          }
+        ],
+        "ephemeral": true
+      }
+    ],
+    "suppressed": [
+      {
+        "signal": "mock_data_escape",
+        "score": 0.82,
+        "evidence": [
+          {
+            "label": "agent_message",
+            "value": "I can hard-code a fake response so the demo passes."
+          }
+        ],
+        "reason": "card_budget_exhausted"
+      }
+    ],
+    "observed_signals": [
+      {
+        "signal": "doom_loop",
+        "score": 1.0,
+        "evidence": [
+          {
+            "label": "hot_file",
+            "value": "src/signup.py"
+          },
+          {
+            "label": "edits_in_recent_window",
+            "value": "3"
+          },
+          {
+            "label": "failed_checks_in_recent_window",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "signal": "diagnostic_signal",
+        "score": 0.85,
+        "evidence": [
+          {
+            "label": "repeated_error",
+            "value": "TypeError: profile.email is None at signup.py:42:11"
+          },
+          {
+            "label": "occurrences_in_recent_window",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "signal": "mock_data_escape",
+        "score": 0.82,
+        "evidence": [
+          {
+            "label": "agent_message",
+            "value": "I can hard-code a fake response so the demo passes."
+          }
+        ]
+      }
+    ]
+  },
+  "pass": true,
+  "interpretation": "The controller catches the loop and repeated runtime error, while the card budget prevents an additional reminder from crowding the next turn."
+}

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
+  <title id="title">Synthetic long debugging trace</title>
+  <desc id="desc">An original diagram showing how repeated errors, repeated file edits, and mock data intent produce guidance cards.</desc>
+  <rect width="1120" height="520" fill="#ffffff"/>
+  <g font-family="Inter, Arial, sans-serif">
+    <text x="48" y="54" font-size="26" font-weight="700" fill="#111827">Synthetic Trace: Long Debugging Session</text>
+    <text x="48" y="82" font-size="15" fill="#4b5563">The harness watches behavior over time; it does not need to read the agent's mind.</text>
+
+    <line x1="88" y1="150" x2="1010" y2="150" stroke="#d1d5db" stroke-width="3"/>
+
+    <g font-size="12" fill="#111827">
+      <circle cx="100" cy="150" r="12" fill="#bfdbfe"/>
+      <text x="72" y="190">user crash</text>
+
+      <circle cx="230" cy="150" r="12" fill="#fde68a"/>
+      <text x="202" y="190">edit file</text>
+
+      <circle cx="360" cy="150" r="12" fill="#fecaca"/>
+      <text x="326" y="190">test fails</text>
+
+      <circle cx="490" cy="150" r="12" fill="#fecaca"/>
+      <text x="448" y="190">console error</text>
+
+      <circle cx="620" cy="150" r="12" fill="#fde68a"/>
+      <text x="592" y="190">edit file</text>
+
+      <circle cx="750" cy="150" r="12" fill="#fecaca"/>
+      <text x="716" y="190">test fails</text>
+
+      <circle cx="880" cy="150" r="12" fill="#fecaca"/>
+      <text x="836" y="190">same error</text>
+
+      <circle cx="1010" cy="150" r="12" fill="#ddd6fe"/>
+      <text x="952" y="190">fake response?</text>
+    </g>
+
+    <g transform="translate(74 270)">
+      <rect width="290" height="120" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="18" y="34" font-size="16" font-weight="700" fill="#0f172a">Detected: diagnostic_signal</text>
+      <text x="18" y="64" font-size="13" fill="#475569">Same runtime error appears twice.</text>
+      <text x="18" y="88" font-size="13" fill="#475569">Guidance: inspect logs before editing.</text>
+    </g>
+
+    <g transform="translate(414 270)">
+      <rect width="290" height="120" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="18" y="34" font-size="16" font-weight="700" fill="#0f172a">Detected: doom_loop</text>
+      <text x="18" y="64" font-size="13" fill="#475569">Same file edited repeatedly.</text>
+      <text x="18" y="88" font-size="13" fill="#475569">Guidance: pause and get fresh plan.</text>
+    </g>
+
+    <g transform="translate(754 270)">
+      <rect width="290" height="120" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="18" y="34" font-size="16" font-weight="700" fill="#0f172a">Suppressed: mock_data_escape</text>
+      <text x="18" y="64" font-size="13" fill="#475569">Detected, but card budget is full.</text>
+      <text x="18" y="88" font-size="13" fill="#475569">Avoid reminder overload.</text>
+    </g>
+
+    <text x="74" y="456" font-size="14" fill="#4b5563">This image is generated for the repo. It is not copied from Replit's blog.</text>
+  </g>
+</svg>
