@@ -1,0 +1,74 @@
+{
+  "question": "Does behavioral evidence catch fake success?",
+  "expected": {
+    "behavioral_passes": false,
+    "failed_steps_include": [
+      "assert_state:users.email"
+    ]
+  },
+  "observed": {
+    "scenario": "signup flow",
+    "passed": false,
+    "evidence": [
+      {
+        "step": "visit",
+        "passed": true,
+        "observed": "/signup",
+        "expected": "/signup",
+        "severity": "info"
+      },
+      {
+        "step": "assert_text:Create account",
+        "passed": true,
+        "observed": "Create account | Email | Submit",
+        "expected": "Create account",
+        "severity": "blocker"
+      },
+      {
+        "step": "fill:email",
+        "passed": true,
+        "observed": "alex@example.com",
+        "expected": "alex@example.com",
+        "severity": "info"
+      },
+      {
+        "step": "click:submit-signup",
+        "passed": true,
+        "observed": [
+          "visit:/signup",
+          "fill:email",
+          "submit:signup:displayed-message-only"
+        ],
+        "expected": "clicked submit-signup",
+        "severity": "info"
+      },
+      {
+        "step": "assert_text:Confirmation sent",
+        "passed": false,
+        "observed": "Create account | Email | Submit | Thanks, alex@example.com",
+        "expected": "Confirmation sent",
+        "severity": "blocker"
+      },
+      {
+        "step": "assert_state:users.email",
+        "passed": false,
+        "observed": [],
+        "expected": "alex@example.com",
+        "severity": "blocker"
+      },
+      {
+        "step": "assert_log:submit:signup:persisted-user",
+        "passed": false,
+        "observed": [
+          "visit:/signup",
+          "fill:email",
+          "submit:signup:displayed-message-only"
+        ],
+        "expected": "submit:signup:persisted-user",
+        "severity": "blocker"
+      }
+    ]
+  },
+  "pass": true,
+  "interpretation": "Behavioral verification catches the missing durable state change."
+}

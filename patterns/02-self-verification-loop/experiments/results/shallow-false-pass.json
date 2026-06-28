@@ -1,0 +1,53 @@
+{
+  "question": "Can a broken app pass visual-only checks?",
+  "expected": {
+    "shallow_passes": true
+  },
+  "observed": {
+    "scenario": "signup flow",
+    "passed": true,
+    "evidence": [
+      {
+        "step": "visit",
+        "passed": true,
+        "observed": "/signup",
+        "expected": "/signup",
+        "severity": "info"
+      },
+      {
+        "step": "assert_text:Create account",
+        "passed": true,
+        "observed": "Create account | Email | Submit",
+        "expected": "Create account",
+        "severity": "blocker"
+      },
+      {
+        "step": "fill:email",
+        "passed": true,
+        "observed": "alex@example.com",
+        "expected": "alex@example.com",
+        "severity": "info"
+      },
+      {
+        "step": "click:submit-signup",
+        "passed": true,
+        "observed": [
+          "visit:/signup",
+          "fill:email",
+          "submit:signup:displayed-message-only"
+        ],
+        "expected": "clicked submit-signup",
+        "severity": "info"
+      },
+      {
+        "step": "assert_text:Thanks",
+        "passed": true,
+        "observed": "Create account | Email | Submit | Thanks, alex@example.com",
+        "expected": "Thanks",
+        "severity": "blocker"
+      }
+    ]
+  },
+  "pass": true,
+  "interpretation": "The broken app can pass shallow verification, so shallow verification is not enough."
+}

@@ -1,0 +1,30 @@
+{
+  "pass": true,
+  "experiments": {
+    "shallow-false-pass": {
+      "pass": true,
+      "question": "Can a broken app pass visual-only checks?",
+      "expected": {
+        "shallow_passes": true
+      }
+    },
+    "behavioral-catches-potemkin": {
+      "pass": true,
+      "question": "Does behavioral evidence catch fake success?",
+      "expected": {
+        "behavioral_passes": false,
+        "failed_steps_include": [
+          "assert_state:users.email"
+        ]
+      }
+    },
+    "repair-rerun": {
+      "pass": true,
+      "question": "Can failed evidence drive repair and rerun?",
+      "expected": {
+        "before_passes": false,
+        "after_passes": true
+      }
+    }
+  }
+}

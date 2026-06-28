@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="540" viewBox="0 0 1160 540" role="img" aria-labelledby="title desc">
+  <title id="title">Shallow versus behavioral verification</title>
+  <desc id="desc">Original diagram comparing a shallow verifier that only checks visible success text with a behavioral verifier that checks durable state and logs.</desc>
+  <rect width="1160" height="540" fill="#ffffff"/>
+  <g font-family="Georgia, 'Times New Roman', serif">
+    <text x="48" y="58" font-size="28" font-weight="700" fill="#111827">Shallow vs Behavioral Verification</text>
+    <text x="48" y="88" font-size="15" fill="#4b5563">A Potemkin app can pass visual checks while failing the actual user outcome.</text>
+  </g>
+  <g font-family="Avenir Next, Helvetica, sans-serif">
+    <g transform="translate(84 150)">
+      <rect width="430" height="260" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+      <text x="26" y="42" font-size="18" font-weight="700" fill="#991b1b">Shallow verifier</text>
+      <text x="26" y="84" font-size="14" fill="#7f1d1d">1. Page renders</text>
+      <text x="26" y="116" font-size="14" fill="#7f1d1d">2. Submit button exists</text>
+      <text x="26" y="148" font-size="14" fill="#7f1d1d">3. Any success text appears</text>
+      <text x="26" y="202" font-size="16" font-weight="700" fill="#991b1b">False pass</text>
+    </g>
+    <g transform="translate(646 150)">
+      <rect width="430" height="260" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+      <text x="26" y="42" font-size="18" font-weight="700" fill="#166534">Behavioral verifier</text>
+      <text x="26" y="84" font-size="14" fill="#166534">1. Submit a real value</text>
+      <text x="26" y="116" font-size="14" fill="#166534">2. Assert durable state changed</text>
+      <text x="26" y="148" font-size="14" fill="#166534">3. Assert the right code path ran</text>
+      <text x="26" y="202" font-size="16" font-weight="700" fill="#166534">Useful fail or true pass</text>
+    </g>
+    <text x="84" y="478" font-size="14" fill="#4b5563">Repo interpretation: the verifier must inspect the consequence of the action, not just the artifact's surface.</text>
+  </g>
+</svg>
+

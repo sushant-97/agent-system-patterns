@@ -16,6 +16,13 @@ just a completion message.
 
 Reference: <https://replit.com/blog/automated-self-testing>
 
+## Source Diagram Study
+
+Replit's post describes automated self-testing as a way for an agent to interact
+with its own app and use evidence to repair it. This repo does not copy Replit's
+assets. It includes a [source diagram study](source-diagrams/README.md) with
+original reconstructions and our own explanation.
+
 ## Core Claim
 
 Agent outputs need a second loop:
@@ -99,3 +106,8 @@ Expected behavior:
 - repair uses failure evidence.
 - behavioral verification passes after repair.
 
+To regenerate the experiment result files:
+
+```bash
+python3 patterns/02-self-verification-loop/experiments/run_experiments.py
+```

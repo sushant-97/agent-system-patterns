@@ -1,0 +1,139 @@
+{
+  "question": "Can failed evidence drive repair and rerun?",
+  "expected": {
+    "before_passes": false,
+    "after_passes": true
+  },
+  "observed": {
+    "before": {
+      "scenario": "signup flow",
+      "passed": false,
+      "evidence": [
+        {
+          "step": "visit",
+          "passed": true,
+          "observed": "/signup",
+          "expected": "/signup",
+          "severity": "info"
+        },
+        {
+          "step": "assert_text:Create account",
+          "passed": true,
+          "observed": "Create account | Email | Submit",
+          "expected": "Create account",
+          "severity": "blocker"
+        },
+        {
+          "step": "fill:email",
+          "passed": true,
+          "observed": "alex@example.com",
+          "expected": "alex@example.com",
+          "severity": "info"
+        },
+        {
+          "step": "click:submit-signup",
+          "passed": true,
+          "observed": [
+            "visit:/signup",
+            "fill:email",
+            "submit:signup:displayed-message-only"
+          ],
+          "expected": "clicked submit-signup",
+          "severity": "info"
+        },
+        {
+          "step": "assert_text:Confirmation sent",
+          "passed": false,
+          "observed": "Create account | Email | Submit | Thanks, alex@example.com",
+          "expected": "Confirmation sent",
+          "severity": "blocker"
+        },
+        {
+          "step": "assert_state:users.email",
+          "passed": false,
+          "observed": [],
+          "expected": "alex@example.com",
+          "severity": "blocker"
+        },
+        {
+          "step": "assert_log:submit:signup:persisted-user",
+          "passed": false,
+          "observed": [
+            "visit:/signup",
+            "fill:email",
+            "submit:signup:displayed-message-only"
+          ],
+          "expected": "submit:signup:persisted-user",
+          "severity": "blocker"
+        }
+      ]
+    },
+    "after": {
+      "scenario": "signup flow",
+      "passed": true,
+      "evidence": [
+        {
+          "step": "visit",
+          "passed": true,
+          "observed": "/signup",
+          "expected": "/signup",
+          "severity": "info"
+        },
+        {
+          "step": "assert_text:Create account",
+          "passed": true,
+          "observed": "Create account | Email | Submit",
+          "expected": "Create account",
+          "severity": "blocker"
+        },
+        {
+          "step": "fill:email",
+          "passed": true,
+          "observed": "alex@example.com",
+          "expected": "alex@example.com",
+          "severity": "info"
+        },
+        {
+          "step": "click:submit-signup",
+          "passed": true,
+          "observed": [
+            "visit:/signup",
+            "fill:email",
+            "submit:signup:persisted-user"
+          ],
+          "expected": "clicked submit-signup",
+          "severity": "info"
+        },
+        {
+          "step": "assert_text:Confirmation sent",
+          "passed": true,
+          "observed": "Create account | Email | Submit | Confirmation sent to alex@example.com",
+          "expected": "Confirmation sent",
+          "severity": "blocker"
+        },
+        {
+          "step": "assert_state:users.email",
+          "passed": true,
+          "observed": [
+            "alex@example.com"
+          ],
+          "expected": "alex@example.com",
+          "severity": "blocker"
+        },
+        {
+          "step": "assert_log:submit:signup:persisted-user",
+          "passed": true,
+          "observed": [
+            "visit:/signup",
+            "fill:email",
+            "submit:signup:persisted-user"
+          ],
+          "expected": "submit:signup:persisted-user",
+          "severity": "blocker"
+        }
+      ]
+    }
+  },
+  "pass": true,
+  "interpretation": "The repair targets the failed persistence evidence, then the same scenario passes."
+}
