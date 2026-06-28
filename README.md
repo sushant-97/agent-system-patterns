@@ -1,73 +1,106 @@
 # Agent System Patterns
 
-A focused, production-inspired study of reliable AI agent control patterns.
+Practical control patterns for building AI agents that can be inspected,
+verified, rolled back, and improved.
 
-This repository intentionally starts small. It is not an "awesome agents" list,
-a prompt dump, or a collection of role-play agent names. The first release goes
-deep on a small set of control patterns:
+This repo focuses on agent reliability infrastructure rather than prompt packs
+or role-play agent templates. Each pattern includes:
 
-1. Decision-time guidance
-2. Reversible sandbox execution
+- a production-inspired failure mode
+- a concrete control mechanism
+- runnable Python code
+- local experiments with checked-in results
+- original diagrams
+- engineering references from teams shipping real products
 
-Each pattern includes architecture diagrams, runnable Python code, experiments,
-failure modes, and references from engineering teams that ship products.
+## Patterns
 
-## Why A Small Pattern Set?
-
-Agent systems fail in boring, expensive ways: they repeat mistakes, claim work is
-done without checking it, or make irreversible changes before anyone understands
-the blast radius. A broad catalog is easy to make shallow. This repo starts by
-making a few control patterns concrete enough to run, inspect, and criticize.
-
-## Current Pattern
-
-| Pattern | Problem It Solves | Main Idea |
+| Pattern | Use It When | Core Control |
 | --- | --- | --- |
-| [Decision-Time Guidance](patterns/01-decision-time-guidance/README.md) | Agents drift, loop, or ignore long static instructions | Detect the current failure shape and inject a short, situational nudge |
-| [Reversible Sandbox Execution](patterns/03-reversible-sandbox-execution/README.md) | Agents need autonomy but durable side effects are risky | Fork state, verify the attempt, and promote only approved diffs |
+| [Decision-Time Guidance](patterns/01-decision-time-guidance/README.md) | An agent is drifting, looping, ignoring logs, or overusing generic instructions | Watch the trajectory and inject a short, evidence-backed nudge only when the current decision needs it |
+| [Reversible Sandbox Execution](patterns/03-reversible-sandbox-execution/README.md) | An agent needs to edit code/data but direct side effects are risky | Fork state, run the attempt in isolation, verify it, and promote only approved diffs |
 
 ## Quickstart
 
-The implementation uses Python standard library code. The repo check is wrapped
-in Node only so later patterns can share one command.
+Run all published pattern demos and experiments:
 
 ```bash
-node scripts/run-examples.mjs
+npm run check
 ```
 
-You can also run the pattern and experiments directly:
+Run individual patterns:
 
 ```bash
 python3 patterns/01-decision-time-guidance/guidance_engine.py
 python3 patterns/01-decision-time-guidance/experiments/run_experiments.py
+
 python3 patterns/03-reversible-sandbox-execution/sandbox_engine.py
 python3 patterns/03-reversible-sandbox-execution/experiments/run_experiments.py
 ```
 
-## Quality Bar
+## Repository Layout
 
-A pattern belongs here only if it has:
+```text
+patterns/
+  01-decision-time-guidance/
+    guidance_engine.py
+    experiments/
+    source-diagrams/
+    assets/
+  03-reversible-sandbox-execution/
+    sandbox_engine.py
+    experiments/
+    source-diagrams/
+    assets/
+```
 
-- A specific production failure mode.
-- A concrete control mechanism, not just a prompt.
-- A runnable example with visible pass/fail behavior.
-- A "when not to use this" section.
-- A cited engineering reference from a team shipping real products.
+Each pattern directory is designed to stand alone: read the pattern README, run
+the Python implementation, then inspect the experiment results.
 
-## Primary References
+## Source Standard
 
-This V1 uses Replit's engineering writing as the primary source set because the
-posts describe concrete control systems around a real coding agent:
+The repo prioritizes technical writing from product engineering teams. For the
+current patterns, the primary sources are Replit engineering posts:
 
 - [Decision-Time Guidance](https://replit.com/blog/decision-time-guidance)
 - [Inside Replit's Snapshot Engine](https://replit.com/blog/inside-replits-snapshot-engine)
 
-See [references.md](references.md) for the full reference notes and how sources
-are evaluated.
+See [references.md](references.md) for source notes.
+
+## Pattern Quality Bar
+
+A pattern should not be added unless it has:
+
+- a concrete failure mode
+- a control boundary, not just a better prompt
+- runnable code with visible pass/fail behavior
+- experiments or source-reported results
+- clear failure modes and tradeoffs
+- at least one credible engineering reference
+
+## Roadmap
+
+Planned next additions:
+
+1. **Self-Verification Loop**  
+   Agent builds, runs checks, inspects evidence, repairs, and reruns before
+   claiming completion.
+
+2. **Static Prompt vs Runtime Control Comparison**  
+   A small experiment comparing global reminders against decision-time guidance.
+
+3. **Sandbox Merge Policy Extensions**  
+   More realistic diff categories: dependency upgrades, schema migrations,
+   generated files, secrets, and network effects.
+
+4. **Trace Viewer**  
+   A lightweight static view for agent trajectories, detected signals, injected
+   guidance, sandbox diffs, and promotion decisions.
 
 ## Non-Goals
 
-- No generic "multi-agent CEO/PM/engineer" role-play examples.
-- No prompt collections without an execution harness.
-- No framework fan-out matrix.
-- No claims that an agent is reliable unless the example verifies behavior.
+- Prompt collections.
+- Generic multi-agent role templates.
+- Framework comparison matrices.
+- Claims of reliability without executable checks or cited evidence.
+
