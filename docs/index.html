@@ -6,7 +6,7 @@
     <title>Agent System Patterns</title>
     <meta
       name="description"
-      content="A compact public catalog of agent reliability patterns: decision-time guidance, self-verification, and reversible sandbox execution."
+      content="A focused field guide to three agent runtime control patterns: decision-time guidance, self-verification, and reversible sandbox execution."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,12 +23,12 @@
         <a class="brand-link" href="https://github.com/sushant-97/agent-system-patterns">agent-system-patterns</a>
       </div>
       <nav class="topnav" aria-label="Primary">
-        <a href="#map">Map</a>
         <a href="#patterns">Patterns</a>
+        <a href="#map">Map</a>
         <a href="#compare">Compare</a>
-        <a href="#why">Why</a>
-        <a href="#roadmap">Roadmap</a>
+        <a href="#why">Method</a>
         <a href="#evidence">Results</a>
+        <a href="#roadmap">Roadmap</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/docs/principles.md">Principles</a>
       </nav>
@@ -39,37 +39,38 @@
         <div class="hero-copy">
           <div class="status-pill">
             <span></span>
-            Now reading: Pattern 03
+            Focused field guide
           </div>
           <p class="eyebrow">Agent System Patterns</p>
-          <h1>Practical controls for reliable agent runs.</h1>
+          <h1>Controls for agent failure modes.</h1>
           <p class="hero-text">
-            A compact catalog of three production-inspired runtime patterns:
-            guide the next decision, verify the result, and bound risky state changes.
+            Three Python-first patterns: guide drifting runs, verify behavior before acceptance,
+            and sandbox risky state changes. Each comes with source notes, diagrams,
+            executable logic, and experiment output.
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#patterns">Explore patterns</a>
-            <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns">Open repository</a>
+            <a class="button button-primary" href="#patterns">Pick a pattern</a>
+            <a class="button button-secondary" href="#compare">Compare controls</a>
           </div>
         </div>
 
         <aside class="hero-aside">
           <div class="metric-grid">
             <article>
-              <span>Patterns</span>
-              <strong>3</strong>
+              <span>Focus</span>
+              <strong>Runtime controls</strong>
             </article>
             <article>
-              <span>Language</span>
+              <span>Examples</span>
               <strong>Python-first</strong>
             </article>
             <article>
-              <span>Basis</span>
-              <strong>Replit engineering</strong>
+              <span>Source trail</span>
+              <strong>Engineering posts</strong>
             </article>
             <article>
-              <span>Checks</span>
-              <strong>10 / 10 pass</strong>
+              <span>Evidence</span>
+              <strong>10 experiment cases</strong>
             </article>
           </div>
           <div class="command-box">
@@ -80,7 +81,7 @@
       </section>
 
       <section class="source-band" aria-label="Engineering source signals">
-        <p>Built from engineering signals</p>
+        <p>Source trail and repo evidence</p>
         <a href="https://replit.com/blog/decision-time-guidance">Decision-time guidance</a>
         <a href="https://replit.com/blog/automated-self-testing">Automated self-testing</a>
         <a href="https://replit.com/blog/inside-replits-snapshot-engine">Snapshot engine</a>
@@ -91,39 +92,111 @@
       <section class="loop-strip" aria-label="Reliability loop">
         <a href="patterns/decision-time-guidance.html">
           <span>01</span>
-          <h2>Guide</h2>
-          <p>Inject a short local rule only when the current trajectory shows a known failure shape.</p>
+          <h2>Decision drift</h2>
+          <p>Guide the next step when the run shows repeated errors, unsafe moves, or fake progress.</p>
         </a>
         <a href="patterns/self-verification-loop.html">
           <span>02</span>
-          <h2>Verify</h2>
-          <p>Prove the output works through behavior, capture evidence, then rerun after repair.</p>
+          <h2>Unproven done</h2>
+          <p>Require behavioral proof before accepting a result that only looks complete.</p>
         </a>
         <a href="patterns/reversible-sandbox-execution.html">
           <span>03</span>
-          <h2>Bound</h2>
-          <p>Fork state, attempt risky work in isolation, and promote only approved diffs.</p>
+          <h2>Risky state</h2>
+          <p>Attempt changes in isolation, then promote only the diffs that pass checks and policy.</p>
         </a>
       </section>
 
-      <section class="section" id="latest">
-        <div class="featured-release">
-          <div class="featured-copy">
-            <p class="eyebrow">Latest Release</p>
-            <h2>Reversible Sandbox Execution</h2>
-            <p>
-              Agents need room to explore, but durable state needs a gatekeeper.
-              This pattern models checkpointed attempts, verification, diff review,
-              and promotion policy as one control boundary.
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="patterns/reversible-sandbox-execution.html">Read latest pattern</a>
-              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/sandbox_engine.py">Open Python engine</a>
-            </div>
+      <section class="section" id="patterns">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Pattern Library</p>
+            <h2>Pick the control you need</h2>
           </div>
-          <figure class="featured-diagram">
-            <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
-          </figure>
+          <p class="section-note">
+            Each entry is framed around a failure mode, the control boundary,
+            runnable Python, and the evidence produced by the experiments.
+          </p>
+        </div>
+
+        <div class="pattern-grid">
+          <article class="pattern-card compact-card">
+            <a class="card-body-link" href="patterns/decision-time-guidance.html" aria-label="Open Decision-Time Guidance">
+              <div class="card-topline">
+                <span class="card-index">Pattern 01</span>
+                <span class="card-status">3 / 3 pass</span>
+              </div>
+              <h3>Decision-Time Guidance</h3>
+              <p>
+                Use when the run starts drifting: repeated errors, unsafe cleanup,
+                or fake progress. The controller injects one short correction for the next turn.
+              </p>
+              <ul class="mini-list">
+                <li>Boundary: next decision.</li>
+                <li>Evidence: trajectory signals.</li>
+                <li>Output: one guidance card.</li>
+              </ul>
+              <figure class="thumb-frame">
+                <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
+              </figure>
+            </a>
+            <div class="card-actions">
+              <a class="button button-primary" href="patterns/decision-time-guidance.html">Read detail</a>
+              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">Source README</a>
+            </div>
+          </article>
+
+          <article class="pattern-card compact-card">
+            <a class="card-body-link" href="patterns/self-verification-loop.html" aria-label="Open Self-Verification Loop">
+              <div class="card-topline">
+                <span class="card-index">Pattern 02</span>
+                <span class="card-status">3 / 3 pass</span>
+              </div>
+              <h3>Self-Verification Loop</h3>
+              <p>
+                Use when the artifact looks plausible but the intended behavior has not been
+                proven. The verifier runs the scenario, captures evidence, and reruns after repair.
+              </p>
+              <ul class="mini-list">
+                <li>Boundary: acceptance.</li>
+                <li>Evidence: scenario run.</li>
+                <li>Output: pass/fail plus repair signal.</li>
+              </ul>
+              <figure class="thumb-frame">
+                <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/02-self-verification-loop/assets/shallow-vs-behavioral.svg" alt="Shallow versus behavioral verification diagram" />
+              </figure>
+            </a>
+            <div class="card-actions">
+              <a class="button button-primary" href="patterns/self-verification-loop.html">Read detail</a>
+              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/README.md">Source README</a>
+            </div>
+          </article>
+
+          <article class="pattern-card compact-card">
+            <a class="card-body-link" href="patterns/reversible-sandbox-execution.html" aria-label="Open Reversible Sandbox Execution">
+              <div class="card-topline">
+                <span class="card-index">Pattern 03</span>
+                <span class="card-status">4 / 4 pass</span>
+              </div>
+              <h3>Reversible Sandbox Execution</h3>
+              <p>
+                Use when the agent needs to touch files, data, or side-effect boundaries.
+                The controller forks state, verifies the candidate, and promotes approved diffs.
+              </p>
+              <ul class="mini-list">
+                <li>Boundary: durable state.</li>
+                <li>Evidence: sandbox diff.</li>
+                <li>Output: promote or reject.</li>
+              </ul>
+              <figure class="thumb-frame">
+                <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
+              </figure>
+            </a>
+            <div class="card-actions">
+              <a class="button button-primary" href="patterns/reversible-sandbox-execution.html">Read detail</a>
+              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">Source README</a>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -131,11 +204,11 @@
         <div class="section-head compact-head">
           <div>
             <p class="eyebrow">Operating Map</p>
-            <h2>Agent run map</h2>
+            <h2>Where the controls sit</h2>
           </div>
           <p class="section-note">
-            The patterns are strongest when they are composed as a runtime system:
-            intervene before drift hardens, verify before acceptance, isolate before promotion.
+            These patterns sit around different moments in a run: before the next decision,
+            before acceptance, and before durable promotion.
           </p>
         </div>
 
@@ -168,115 +241,22 @@
         </div>
       </section>
 
-      <section class="section" id="patterns">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Pattern Library</p>
-            <h2>Pick the control you need</h2>
-          </div>
-          <p class="section-note">
-            Each entry links to an internal detail page with diagrams,
-            logic, experiments, and source references.
-          </p>
-        </div>
-
-        <div class="pattern-grid">
-          <article class="pattern-card compact-card">
-            <a class="card-body-link" href="patterns/decision-time-guidance.html" aria-label="Open Decision-Time Guidance">
-              <div class="card-topline">
-                <span class="card-index">Pattern 01</span>
-                <span class="card-status">3 / 3 pass</span>
-              </div>
-              <h3>Decision-Time Guidance</h3>
-              <p>
-                Watch the agent trajectory, detect repeated failure shapes, and inject a brief
-                evidence-backed correction for the next decision only.
-              </p>
-              <ul class="mini-list">
-                <li>Stops prompt bloat from static reminder piles.</li>
-                <li>Uses scores, cooldowns, and card budgets.</li>
-                <li>Best for loops, unsafe moves, and fake progress.</li>
-              </ul>
-              <figure class="thumb-frame">
-                <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
-              </figure>
-            </a>
-            <div class="card-actions">
-              <a class="button button-primary" href="patterns/decision-time-guidance.html">Read detail</a>
-              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">Source README</a>
-            </div>
-          </article>
-
-          <article class="pattern-card compact-card">
-            <a class="card-body-link" href="patterns/self-verification-loop.html" aria-label="Open Self-Verification Loop">
-              <div class="card-topline">
-                <span class="card-index">Pattern 02</span>
-                <span class="card-status">3 / 3 pass</span>
-              </div>
-              <h3>Self-Verification Loop</h3>
-              <p>
-                Separate shallow completion checks from behavioral proof so the agent has to
-                demonstrate working outcomes instead of persuasive output.
-              </p>
-              <ul class="mini-list">
-                <li>Catches Potemkin success that never changes state.</li>
-                <li>Uses runtime evidence to drive repair.</li>
-                <li>Best for UI, API, and tool-driven workflows.</li>
-              </ul>
-              <figure class="thumb-frame">
-                <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/02-self-verification-loop/assets/shallow-vs-behavioral.svg" alt="Shallow versus behavioral verification diagram" />
-              </figure>
-            </a>
-            <div class="card-actions">
-              <a class="button button-primary" href="patterns/self-verification-loop.html">Read detail</a>
-              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/README.md">Source README</a>
-            </div>
-          </article>
-
-          <article class="pattern-card compact-card">
-            <a class="card-body-link" href="patterns/reversible-sandbox-execution.html" aria-label="Open Reversible Sandbox Execution">
-              <div class="card-topline">
-                <span class="card-index">Pattern 03</span>
-                <span class="card-status">4 / 4 pass</span>
-              </div>
-              <h3>Reversible Sandbox Execution</h3>
-              <p>
-                Let the agent attempt risky work inside a forked checkpoint, then promote only
-                the subset of changes that pass verification and merge policy.
-              </p>
-              <ul class="mini-list">
-                <li>Keeps rollback power with the system.</li>
-                <li>Rejects destructive or irreversible side effects.</li>
-                <li>Best for stateful, high-blast-radius changes.</li>
-              </ul>
-              <figure class="thumb-frame">
-                <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
-              </figure>
-            </a>
-            <div class="card-actions">
-              <a class="button button-primary" href="patterns/reversible-sandbox-execution.html">Read detail</a>
-              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">Source README</a>
-            </div>
-          </article>
-        </div>
-      </section>
-
       <section class="section" id="why">
         <div class="section-head compact-head">
           <div>
-            <p class="eyebrow">Implementation Focus</p>
-            <h2>Built to move from idea to code</h2>
+            <p class="eyebrow">Method</p>
+            <h2>How to read this repo</h2>
           </div>
           <p class="section-note">
-            A clarity-first content model tuned for an engineering repo:
-            source signal, implementation, evidence, and tradeoffs in one place.
+            The pages follow the same structure so a reader can move from the idea
+            to code, experiment output, and next implementation questions quickly.
           </p>
         </div>
 
         <div class="value-grid">
           <article>
-            <h3>Visual first</h3>
-            <p>Every pattern has a diagram so the control boundary is visible before the code appears.</p>
+            <h3>Failure mode first</h3>
+            <p>Each pattern starts with the concrete behavior it is meant to catch.</p>
           </article>
           <article>
             <h3>Python core</h3>
@@ -291,12 +271,12 @@
             <p>Every pattern carries checked-in results so visitors can inspect more than claims.</p>
           </article>
           <article>
-            <h3>Decision oriented</h3>
-            <p>The chooser and comparison table help readers decide which control solves their current failure.</p>
+            <h3>Decision surface</h3>
+            <p>The chooser and comparison table help readers pick a useful starting point.</p>
           </article>
           <article>
-            <h3>Production honest</h3>
-            <p>The site names gaps like telemetry schema, regression corpus, override paths, and cost budgets.</p>
+            <h3>Next work visible</h3>
+            <p>The roadmap names the missing support pieces needed to turn examples into stronger harnesses.</p>
           </article>
         </div>
       </section>
@@ -436,7 +416,7 @@
       </section>
 
       <footer class="footer-bar">
-        <p>Inspectable control patterns with runnable examples, source links, and internal docs pages.</p>
+        <p>A focused field guide with runnable examples, source links, and internal docs pages.</p>
         <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns">View on GitHub</a>
       </footer>
     </main>
