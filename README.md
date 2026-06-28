@@ -85,6 +85,8 @@ See [references.md](references.md) for source notes.
 
 See [docs/principles.md](docs/principles.md) for the repo's design principles.
 
+There is also a static overview page at [docs/index.html](docs/index.html).
+
 ## Pattern Quality Bar
 
 A pattern should not be added unless it has:

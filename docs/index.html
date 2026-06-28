@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent System Patterns</title>
+    <meta
+      name="description"
+      content="Production-inspired control patterns for reliable AI agents: guidance, verification, and reversible execution."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <nav class="nav" aria-label="Primary">
+        <a href="../README.md">README</a>
+        <a href="#patterns">Patterns</a>
+        <a href="#experiments">Experiments</a>
+        <a href="principles.md">Principles</a>
+      </nav>
+      <section class="intro">
+        <p class="kicker">Agent System Patterns</p>
+        <h1>Control loops for agents that need to be inspected, verified, and rolled back.</h1>
+        <p class="lede">
+          Three production-inspired patterns for agent reliability infrastructure:
+          guide the decision, verify the result, and bound the side effects.
+        </p>
+        <div class="command-strip" aria-label="Quickstart command">
+          <span>$</span>
+          <code>npm run check</code>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="thesis" aria-label="Reliability loop">
+        <div>
+          <span class="step-number">01</span>
+          <h2>Guide</h2>
+          <p>Watch the trajectory and inject a short, evidence-backed nudge only when the current decision needs it.</p>
+        </div>
+        <div>
+          <span class="step-number">02</span>
+          <h2>Verify</h2>
+          <p>Execute behavior, capture evidence, repair from failures, and rerun before accepting completion.</p>
+        </div>
+        <div>
+          <span class="step-number">03</span>
+          <h2>Bound</h2>
+          <p>Fork state, run risky work in a sandbox, and promote only diffs that pass invariants and merge policy.</p>
+        </div>
+      </section>
+
+      <section class="section" id="patterns">
+        <div class="section-heading">
+          <p class="kicker">Pattern Catalog</p>
+          <h2>Three controls, one reliability shape.</h2>
+        </div>
+
+        <article class="pattern-card">
+          <div class="pattern-copy">
+            <p class="pattern-index">Pattern 01</p>
+            <h3>Decision-Time Guidance</h3>
+            <p>
+              Static prompts turn every reminder into a tax on every decision.
+              This pattern classifies the current trajectory and injects a
+              temporary guidance card only when a known failure shape appears.
+            </p>
+            <ul>
+              <li>Detects repeated errors, edit loops, unsafe commands, and fake-data escape.</li>
+              <li>Uses scores, card budgets, cooldowns, and evidence payloads.</li>
+              <li>Inspired by Replit's decision-time guidance engineering post.</li>
+            </ul>
+            <a class="pattern-link" href="../patterns/01-decision-time-guidance/README.md">Open pattern</a>
+          </div>
+          <figure>
+            <img src="../patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
+          </figure>
+        </article>
+
+        <article class="pattern-card reverse">
+          <div class="pattern-copy">
+            <p class="pattern-index">Pattern 02</p>
+            <h3>Self-Verification Loop</h3>
+            <p>
+              A generated app can look complete while failing the actual user
+              outcome. This pattern separates shallow checks from behavioral
+              verification and repairs from captured failure evidence.
+            </p>
+            <ul>
+              <li>Catches Potemkin success messages that do not persist state.</li>
+              <li>Runs executable scenarios and records UI, state, and log evidence.</li>
+              <li>Inspired by Replit's automated self-testing engineering post.</li>
+            </ul>
+            <a class="pattern-link" href="../patterns/02-self-verification-loop/README.md">Open pattern</a>
+          </div>
+          <figure>
+            <img src="../patterns/02-self-verification-loop/assets/shallow-vs-behavioral.svg" alt="Shallow versus behavioral verification diagram" />
+          </figure>
+        </article>
+
+        <article class="pattern-card">
+          <div class="pattern-copy">
+            <p class="pattern-index">Pattern 03</p>
+            <h3>Reversible Sandbox Execution</h3>
+            <p>
+              Agents need room to explore. Product systems need recovery,
+              auditability, and promotion gates. This pattern treats agent work
+              as a candidate overlay on top of a checkpoint.
+            </p>
+            <ul>
+              <li>Creates checkpoints and forked sandboxes.</li>
+              <li>Rejects destructive data changes and non-reversible external effects.</li>
+              <li>Inspired by Replit's snapshot engine engineering post.</li>
+            </ul>
+            <a class="pattern-link" href="../patterns/03-reversible-sandbox-execution/README.md">Open pattern</a>
+          </div>
+          <figure>
+            <img src="../patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
+          </figure>
+        </article>
+      </section>
+
+      <section class="section compact" id="experiments">
+        <div class="section-heading">
+          <p class="kicker">Local Experiments</p>
+          <h2>Every pattern carries checked-in evidence.</h2>
+        </div>
+        <div class="experiment-grid">
+          <a href="../patterns/01-decision-time-guidance/experiments/results/summary.json">
+            <span>Decision-Time Guidance</span>
+            <strong>3 / 3 pass</strong>
+          </a>
+          <a href="../patterns/02-self-verification-loop/experiments/results/summary.json">
+            <span>Self-Verification Loop</span>
+            <strong>3 / 3 pass</strong>
+          </a>
+          <a href="../patterns/03-reversible-sandbox-execution/experiments/results/summary.json">
+            <span>Reversible Sandbox Execution</span>
+            <strong>4 / 4 pass</strong>
+          </a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
