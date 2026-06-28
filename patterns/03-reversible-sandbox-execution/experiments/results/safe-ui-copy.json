@@ -1,0 +1,55 @@
+{
+  "question": "Can a low-risk file edit promote?",
+  "expected": {
+    "decision": "promoted",
+    "blocked_risks": []
+  },
+  "observed": {
+    "label": "safe ui copy",
+    "decision": "promoted",
+    "diff": [
+      {
+        "path": "files.app/copy.json",
+        "risk": "file_change",
+        "before": {
+          "headline": "Ship reliable software",
+          "cta": "Start now"
+        },
+        "after": {
+          "headline": "Build with recoverable agents",
+          "cta": "Inspect the diff"
+        }
+      }
+    ],
+    "checks": [
+      {
+        "name": "required feature flag preserved",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "billing mode remains live",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "billing plans retained",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "invoice history retained",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "no external effects during sandbox",
+        "passed": true,
+        "severity": "blocker"
+      }
+    ],
+    "rejection_reasons": []
+  },
+  "pass": true,
+  "interpretation": "Low-risk file changes can promote when all invariants pass."
+}

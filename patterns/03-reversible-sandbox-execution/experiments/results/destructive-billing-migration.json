@@ -1,0 +1,96 @@
+{
+  "question": "Does durable data loss get blocked?",
+  "expected": {
+    "decision": "rejected",
+    "blocked_risks": [
+      "destructive_data"
+    ]
+  },
+  "observed": {
+    "label": "destructive billing migration",
+    "decision": "rejected",
+    "diff": [
+      {
+        "path": "files.app/config.json",
+        "risk": "file_change",
+        "before": {
+          "featureFlag": "signup_v2",
+          "billingMode": "live",
+          "theme": "light"
+        },
+        "after": {
+          "featureFlag": "signup_v2",
+          "billingMode": "test",
+          "theme": "light"
+        }
+      },
+      {
+        "path": "database.billing_plans",
+        "risk": "destructive_data",
+        "before": [
+          {
+            "id": "free",
+            "price": 0
+          },
+          {
+            "id": "pro",
+            "price": 20
+          }
+        ],
+        "after": [
+          {
+            "id": "enterprise",
+            "price": 200
+          }
+        ]
+      },
+      {
+        "path": "database.invoices",
+        "risk": "destructive_data",
+        "before": [
+          {
+            "id": "inv_001",
+            "amount": 20
+          }
+        ],
+        "after": []
+      }
+    ],
+    "checks": [
+      {
+        "name": "required feature flag preserved",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "billing mode remains live",
+        "passed": false,
+        "severity": "blocker"
+      },
+      {
+        "name": "billing plans retained",
+        "passed": false,
+        "severity": "blocker"
+      },
+      {
+        "name": "invoice history retained",
+        "passed": false,
+        "severity": "blocker"
+      },
+      {
+        "name": "no external effects during sandbox",
+        "passed": true,
+        "severity": "blocker"
+      }
+    ],
+    "rejection_reasons": [
+      "failed check: billing mode remains live",
+      "failed check: billing plans retained",
+      "failed check: invoice history retained",
+      "blocked risk: database.billing_plans (destructive_data)",
+      "blocked risk: database.invoices (destructive_data)"
+    ]
+  },
+  "pass": true,
+  "interpretation": "The sandbox can contain the failed attempt while preserving canonical billing state."
+}

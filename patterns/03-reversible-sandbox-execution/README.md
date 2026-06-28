@@ -15,6 +15,12 @@ or rolled back, and promotion is controlled.
 
 Reference: <https://replit.com/blog/inside-replits-snapshot-engine>
 
+## Source Diagram Study
+
+Replit's post centers on a snapshot system for agent work. This repo does not
+copy Replit's diagrams. It includes a [source diagram study](source-diagrams/README.md)
+with original reconstructions and our own explanation of the control logic.
+
 ## Core Claim
 
 Autonomous agents need exploration room. Product systems need recovery,
@@ -31,17 +37,7 @@ What evidence proves the promoted state still satisfies invariants?
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  A[Canonical workspace] --> B[Create checkpoint]
-  B --> C[Fork sandbox]
-  C --> D[Agent attempts change]
-  D --> E[Verify sandbox]
-  E --> F{Merge policy}
-  F -- reject --> G[Keep audit record, discard sandbox]
-  F -- approve --> H[Promote allowed diff]
-  H --> I[Canonical workspace]
-```
+![Snapshot fork promote pipeline](assets/snapshot-fork-promote.svg)
 
 ## Use This When
 
@@ -115,3 +111,8 @@ Expected behavior:
 - a destructive billing migration is rejected.
 - an external side-effect attempt is rejected.
 
+To regenerate the experiment result files:
+
+```bash
+python3 patterns/03-reversible-sandbox-execution/experiments/run_experiments.py
+```

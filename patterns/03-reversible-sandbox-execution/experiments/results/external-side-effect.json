@@ -1,0 +1,68 @@
+{
+  "question": "Does non-reversible external activity get blocked?",
+  "expected": {
+    "decision": "rejected",
+    "blocked_risks": [
+      "external_side_effect"
+    ]
+  },
+  "observed": {
+    "label": "external side effect",
+    "decision": "rejected",
+    "diff": [
+      {
+        "path": "files.app/copy.json",
+        "risk": "file_change",
+        "before": {
+          "headline": "Ship reliable software",
+          "cta": "Start now"
+        },
+        "after": {
+          "headline": "Ship reliable software",
+          "cta": "Deploy now"
+        }
+      },
+      {
+        "path": "external_effects",
+        "risk": "external_side_effect",
+        "before": [],
+        "after": [
+          "sent_production_email_campaign"
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "name": "required feature flag preserved",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "billing mode remains live",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "billing plans retained",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "invoice history retained",
+        "passed": true,
+        "severity": "blocker"
+      },
+      {
+        "name": "no external effects during sandbox",
+        "passed": false,
+        "severity": "blocker"
+      }
+    ],
+    "rejection_reasons": [
+      "failed check: no external effects during sandbox",
+      "blocked risk: external_effects (external_side_effect)"
+    ]
+  },
+  "pass": true,
+  "interpretation": "Snapshots do not make external effects reversible; policy must block them before promotion."
+}

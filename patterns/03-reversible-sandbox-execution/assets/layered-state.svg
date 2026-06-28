@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="540" viewBox="0 0 1160 540" role="img" aria-labelledby="title desc">
+  <title id="title">Layered sandbox state</title>
+  <desc id="desc">Original diagram showing base snapshot, sandbox overlay, external side-effect boundary, and promotion of approved diff.</desc>
+  <rect width="1160" height="540" fill="#ffffff"/>
+  <g font-family="Inter, Arial, sans-serif">
+    <text x="48" y="54" font-size="26" font-weight="700" fill="#111827">Layered State Boundary</text>
+    <text x="48" y="84" font-size="15" fill="#4b5563">A sandbox can be modeled as a base snapshot plus an overlay. Promotion copies only approved overlay changes.</text>
+
+    <g transform="translate(110 145)">
+      <rect width="330" height="240" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+      <text x="28" y="42" font-size="18" font-weight="700" fill="#1e3a8a">Base snapshot</text>
+      <text x="28" y="82" font-size="14" fill="#1e40af">app/config.json</text>
+      <text x="28" y="112" font-size="14" fill="#1e40af">billing_plans</text>
+      <text x="28" y="142" font-size="14" fill="#1e40af">invoices</text>
+      <text x="28" y="172" font-size="14" fill="#1e40af">dependencies</text>
+    </g>
+
+    <g transform="translate(260 230)">
+      <rect width="340" height="220" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+      <text x="28" y="42" font-size="18" font-weight="700" fill="#9a3412">Sandbox overlay</text>
+      <text x="28" y="82" font-size="14" fill="#7c2d12">changed copy text</text>
+      <text x="28" y="112" font-size="14" fill="#7c2d12">candidate dependency bump</text>
+      <text x="28" y="142" font-size="14" fill="#7c2d12">candidate database edits</text>
+      <text x="28" y="172" font-size="14" fill="#7c2d12">audit trail</text>
+    </g>
+
+    <g transform="translate(730 155)">
+      <rect width="300" height="116" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+      <text x="24" y="40" font-size="17" font-weight="700" fill="#991b1b">Not safely reversible</text>
+      <text x="24" y="72" font-size="14" fill="#7f1d1d">production deploys, emails, payments</text>
+    </g>
+
+    <g transform="translate(730 330)">
+      <rect width="300" height="116" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+      <text x="24" y="40" font-size="17" font-weight="700" fill="#166534">Promoted diff</text>
+      <text x="24" y="72" font-size="14" fill="#166534">approved overlay changes only</text>
+    </g>
+
+    <text x="110" y="500" font-size="14" fill="#4b5563">Repo interpretation: sandboxing is not just a copy. It is a boundary around state, effects, verification, and promotion.</text>
+  </g>
+</svg>
+

@@ -1,0 +1,44 @@
+{
+  "pass": true,
+  "experiments": {
+    "safe-ui-copy": {
+      "pass": true,
+      "question": "Can a low-risk file edit promote?",
+      "expected": {
+        "decision": "promoted",
+        "blocked_risks": []
+      }
+    },
+    "destructive-billing-migration": {
+      "pass": true,
+      "question": "Does durable data loss get blocked?",
+      "expected": {
+        "decision": "rejected",
+        "blocked_risks": [
+          "destructive_data"
+        ]
+      }
+    },
+    "external-side-effect": {
+      "pass": true,
+      "question": "Does non-reversible external activity get blocked?",
+      "expected": {
+        "decision": "rejected",
+        "blocked_risks": [
+          "external_side_effect"
+        ]
+      }
+    },
+    "competing-sandboxes": {
+      "pass": true,
+      "question": "Can two independent forks be compared before promotion?",
+      "expected": {
+        "candidate_decisions": [
+          "promoted",
+          "rejected"
+        ],
+        "final_preserves_invoices": true
+      }
+    }
+  }
+}
