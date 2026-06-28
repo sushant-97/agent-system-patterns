@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reversible Sandbox Execution</title>
+    <title>Reversible Sandbox Execution — Agent System Patterns</title>
     <meta
       name="description"
-      content="Reversible sandbox execution: isolate risky agent work behind checkpoints, verification, and merge policy."
+      content="Let an agent try risky changes in an isolated copy, inspect the diff, and promote only what proves safe to keep behind snapshots, verification, and merge policy."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,169 +19,141 @@
   <body class="site-body">
     <header class="topbar">
       <div class="brand-block">
-        <p class="eyebrow">Pattern 03</p>
-        <a class="brand-link" href="../index.html">Agent System Patterns</a>
+        <p class="eyebrow">Note 03</p>
+        <a class="brand-link" href="../index.html">agent-system-patterns</a>
       </div>
       <nav class="topnav" aria-label="Primary">
-        <a href="../index.html">Home</a>
-        <a href="#mechanics">Mechanics</a>
-        <a href="#related">Related</a>
-        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">README</a>
-        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/experiments/results/summary.json">Results</a>
+        <a href="../index.html">All notes</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns">GitHub</a>
       </nav>
     </header>
 
-    <main class="page-shell detail-shell">
-      <section class="detail-hero">
-        <div>
-          <p class="eyebrow">Reversible Sandbox Execution</p>
-          <h1>Explore in a sandbox. Promote only safe diffs.</h1>
-          <p class="hero-text">
-            This pattern places risky agent work behind snapshots, isolated attempts, verification,
-            and merge policy. The canonical workspace stays protected until a candidate diff proves
-            it is safe enough to promote.
-          </p>
-        </div>
-        <div class="detail-stats">
-          <article>
-            <span>Production signal</span>
-            <strong>Replit snapshot engine</strong>
-          </article>
-          <article>
-            <span>Experiments</span>
-            <strong>4 / 4 pass</strong>
-          </article>
-          <article>
-            <span>Implementation</span>
-            <strong>Python sandbox engine</strong>
-          </article>
-        </div>
-      </section>
-
-      <figure class="detail-diagram">
-        <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
-      </figure>
-
-      <section class="source-strip" aria-label="Source and repo interpretation">
-        <article>
-          <span>Source signal</span>
-          <p>Replit's snapshot-engine work makes state recovery a first-class agent boundary instead of an afterthought.</p>
-        </article>
-        <article>
-          <span>Repo addition</span>
-          <p>The implementation turns that into an inspectable checkpoint, diff, invariant, and merge-policy model.</p>
-        </article>
-      </section>
-
-      <section class="detail-grid" id="overview">
-        <article class="detail-card">
-          <h2>Core claim</h2>
-          <p>Autonomous agents need exploration room, but product systems need recovery, auditability, and explicit promotion gates.</p>
-        </article>
-        <article class="detail-card">
-          <h2>Controller questions</h2>
-          <ul class="mini-list">
-            <li>What state is the agent allowed to touch?</li>
-            <li>Can this attempt be fully rolled back?</li>
-            <li>Which changes are safe to promote?</li>
-          </ul>
-        </article>
-        <article class="detail-card">
-          <h2>Best use cases</h2>
-          <ul class="mini-list">
-            <li>Stateful edits to files, data, or dependencies.</li>
-            <li>High-blast-radius work needing auditability.</li>
-            <li>Cases where multiple candidate attempts should be compared.</li>
-          </ul>
-        </article>
-        <article class="detail-card">
-          <h2>Implementation shape</h2>
-          <p>The Python model includes immutable checkpoints, isolated sandbox attempts, invariant verification, diffing, and a merge policy that can reject risky state transitions.</p>
-        </article>
-      </section>
-
-      <section class="section detail-section" id="mechanics">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Logic</p>
-            <h2>Promotion mechanics</h2>
-          </div>
-        </div>
-        <div class="stack-grid">
-          <article class="detail-card">
-            <h3>1. Create checkpoint</h3>
-            <p>The controller snapshots canonical state before the agent begins so every attempt has a stable fork point.</p>
-          </article>
-          <article class="detail-card">
-            <h3>2. Run in isolation</h3>
-            <p>The agent edits a sandbox copy instead of the durable workspace, which keeps failed attempts inspectable and reversible.</p>
-          </article>
-          <article class="detail-card">
-            <h3>3. Verify and diff</h3>
-            <p>Invariant checks and explicit change records tell the controller exactly what changed and whether the result is acceptable.</p>
-          </article>
-          <article class="detail-card">
-            <h3>4. Promote selectively</h3>
-            <p>Only changes that satisfy verification and merge policy are applied back to canonical state.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section detail-section" id="experiments">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Verification</p>
-            <h2>Experiment signals</h2>
-          </div>
-        </div>
-        <div class="stack-grid">
-          <article class="detail-card">
-            <h3>Safe UI copy</h3>
-            <p>A limited file edit passes verification and is promoted back to canonical state.</p>
-          </article>
-          <article class="detail-card">
-            <h3>Destructive billing migration</h3>
-            <p>The merge policy rejects state changes that would delete or damage durable data.</p>
-          </article>
-          <article class="detail-card">
-            <h3>External side effect</h3>
-            <p>Attempts that create non-reversible external effects are blocked even if the local diff looks harmless.</p>
-          </article>
-          <article class="detail-card">
-            <h3>Competing attempts</h3>
-            <p>Multiple sandboxes can be compared so the system promotes the safer or more correct candidate.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section detail-section" id="related">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Related Controls</p>
-            <h2>Good pairings</h2>
-          </div>
-        </div>
-        <div class="next-grid">
-          <a href="decision-time-guidance.html">
-            <span>Before sandboxing</span>
-            <strong>Decision-Time Guidance</strong>
-            <p>Use this when the agent is approaching risky actions before gathering enough evidence.</p>
+    <main class="article-page">
+      <div class="article-wrap">
+        <aside class="article-rail" aria-label="Share this note">
+          <a class="rail-btn" href="../index.html" aria-label="Back to all notes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           </a>
-          <a href="self-verification-loop.html">
-            <span>Inside the sandbox</span>
-            <strong>Self-Verification Loop</strong>
-            <p>Use this to decide whether the sandbox candidate deserves promotion consideration.</p>
+          <div class="rail-sep"></div>
+          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=Reversible%20Sandbox%20Execution&url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on X">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
           </a>
-        </div>
-      </section>
+          <a class="rail-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+          </a>
+        </aside>
 
-      <footer class="footer-bar">
-        <p>Pattern 03 detail page.</p>
-        <div class="button-row">
-          <a class="button button-primary" href="../index.html">Back to catalog</a>
-          <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">Open README</a>
-        </div>
-      </footer>
+        <article class="article">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="sep">/</span>
+            <a href="../index.html#posts">Posts</a>
+            <span class="sep">/</span>
+            <span class="current">Reversible Sandbox Execution</span>
+          </nav>
+
+          <h1 class="article-title">Explore in a sandbox. Promote only safe diffs.</h1>
+          <p class="article-subtitle">Agent System Patterns · Note 03</p>
+
+          <div class="article-byline">
+            <div class="byline-id">
+              <span class="avatar">SP</span>
+              <div class="byline-meta">
+                <span class="byline-name">Sushant Pargaonkar</span>
+                <span class="byline-date">June 2026 · 5 min read</span>
+              </div>
+            </div>
+            <div class="byline-share">
+              <a class="share-btn" href="https://twitter.com/intent/tweet?text=Reversible%20Sandbox%20Execution&url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on X">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="View on GitHub">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.92c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <figure class="article-banner">
+            <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
+          </figure>
+
+          <div class="article-body">
+            <p class="article-lead">
+              This note places risky agent work behind snapshots, isolated attempts, verification, and
+              merge policy. The canonical workspace stays protected until a candidate diff proves it's
+              safe enough to promote.
+            </p>
+
+            <h2>The core idea</h2>
+            <p>
+              Autonomous agents need room to explore, but product systems need
+              <strong>recovery, auditability, and explicit promotion gates</strong>. Reversibility makes
+              that exploration safe to trust.
+            </p>
+
+            <h2>The questions a controller asks</h2>
+            <ul>
+              <li>What state is the agent allowed to touch?</li>
+              <li>Can this attempt be fully rolled back?</li>
+              <li>Which changes are safe to promote?</li>
+            </ul>
+
+            <h2>When to reach for it</h2>
+            <ul>
+              <li>Stateful edits to files, data, or dependencies.</li>
+              <li>High-blast-radius work that needs auditability.</li>
+              <li>Cases where multiple candidate attempts should be compared.</li>
+            </ul>
+
+            <h2>How it works</h2>
+            <ol>
+              <li><strong>Create a checkpoint.</strong> Snapshot canonical state before the agent begins so every attempt has a stable fork point.</li>
+              <li><strong>Run in isolation.</strong> The agent edits a sandbox copy, which keeps failed attempts inspectable and reversible.</li>
+              <li><strong>Verify and diff.</strong> Invariant checks and explicit change records show exactly what changed and whether it's acceptable.</li>
+              <li><strong>Promote selectively.</strong> Only changes that satisfy verification and merge policy are applied back to canonical state.</li>
+            </ol>
+
+            <h2>What the experiments show</h2>
+            <ul>
+              <li>A limited file edit passes verification and is promoted back to canonical state.</li>
+              <li>The merge policy rejects a billing migration that would delete or damage durable data.</li>
+              <li>Attempts that create non-reversible external effects are blocked even when the local diff looks harmless.</li>
+              <li>Multiple sandboxes can be compared so the system promotes the safer or more correct candidate.</li>
+            </ul>
+
+            <h2>How it's built</h2>
+            <p>
+              The implementation includes immutable checkpoints, isolated sandbox attempts, invariant
+              verification, diffing, and a merge policy that can reject risky state transitions.
+            </p>
+          </div>
+
+          <section class="article-cta">
+            <h2>See how it actually runs</h2>
+            <p>Every note ships with runnable code and checked-in experiments. Read the implementation and reproduce the results yourself.</p>
+            <a class="button" href="https://github.com/sushant-97/agent-system-patterns">Read the code on GitHub</a>
+          </section>
+
+          <section class="article-related">
+            <p class="eyebrow">Read next</p>
+            <div class="related-grid">
+              <a href="decision-time-guidance.html">
+                <span>Note 01</span>
+                <strong>Decision-Time Guidance</strong>
+                <p>Catch the agent before it reaches risky actions without enough evidence to back them.</p>
+              </a>
+              <a href="self-verification-loop.html">
+                <span>Note 02</span>
+                <strong>Self-Verification Loop</strong>
+                <p>Decide whether a sandbox candidate has earned promotion by proving its behavior first.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+      </div>
     </main>
   </body>
 </html>

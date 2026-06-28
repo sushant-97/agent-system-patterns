@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Decision-Time Guidance</title>
+    <title>Decision-Time Guidance — Agent System Patterns</title>
     <meta
       name="description"
-      content="Decision-time guidance: inject targeted control instructions only when the current agent trajectory shows a known failure mode."
+      content="Guidance works best as a runtime control layer: watch the agent, spot a known failure shape, and add one short correction for the next decision only."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,165 +19,140 @@
   <body class="site-body">
     <header class="topbar">
       <div class="brand-block">
-        <p class="eyebrow">Pattern 01</p>
-        <a class="brand-link" href="../index.html">Agent System Patterns</a>
+        <p class="eyebrow">Note 01</p>
+        <a class="brand-link" href="../index.html">agent-system-patterns</a>
       </div>
       <nav class="topnav" aria-label="Primary">
-        <a href="../index.html">Home</a>
-        <a href="#mechanics">Mechanics</a>
-        <a href="#related">Related</a>
-        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">README</a>
-        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/experiments/results/summary.json">Results</a>
+        <a href="../index.html">All notes</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns">GitHub</a>
       </nav>
     </header>
 
-    <main class="page-shell detail-shell">
-      <section class="detail-hero">
-        <div>
-          <p class="eyebrow">Decision-Time Guidance</p>
-          <h1>Inject guidance only when the run needs it.</h1>
-          <p class="hero-text">
-            This pattern treats guidance as a runtime control layer. The agent does not carry every
-            possible reminder from the start. The controller watches behavior, classifies failure
-            shapes, and inserts one temporary nudge for the next decision only.
-          </p>
-        </div>
-        <div class="detail-stats">
-          <article>
-            <span>Production signal</span>
-            <strong>Replit decision-time guidance</strong>
-          </article>
-          <article>
-            <span>Experiments</span>
-            <strong>3 / 3 pass</strong>
-          </article>
-          <article>
-            <span>Implementation</span>
-            <strong>Python guidance engine</strong>
-          </article>
-        </div>
-      </section>
-
-      <figure class="detail-diagram">
-        <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
-      </figure>
-
-      <section class="source-strip" aria-label="Source and repo interpretation">
-        <article>
-          <span>Source signal</span>
-          <p>Replit frames guidance as a runtime intervention, not a longer prompt. This page translates that idea into a small controller design.</p>
-        </article>
-        <article>
-          <span>Repo addition</span>
-          <p>The implementation makes guidance auditable with deterministic signals, evidence payloads, cooldowns, and a hard card budget.</p>
-        </article>
-      </section>
-
-      <section class="detail-grid" id="overview">
-        <article class="detail-card">
-          <h2>Core claim</h2>
-          <p>Static prompts degrade when every reminder is loaded up front. Guidance works better when it is situational, ephemeral, budgeted, and tied to evidence from the current run.</p>
-        </article>
-        <article class="detail-card">
-          <h2>Controller questions</h2>
-          <ul class="mini-list">
-            <li>What is the agent doing right now?</li>
-            <li>Is this a known failure shape?</li>
-            <li>What is the smallest correction for the next turn only?</li>
-          </ul>
-        </article>
-        <article class="detail-card">
-          <h2>Best use cases</h2>
-          <ul class="mini-list">
-            <li>Repeated runtime errors or edit loops.</li>
-            <li>Unsafe commands too early in the run.</li>
-            <li>Mock-data escape and fake progress behavior.</li>
-          </ul>
-        </article>
-        <article class="detail-card">
-          <h2>Implementation shape</h2>
-          <p>The Python engine models trajectory events, deterministic classifiers, scoring, cooldowns, and a short guidance-card bank. It intentionally keeps V1 logic inspectable.</p>
-        </article>
-      </section>
-
-      <section class="section detail-section" id="mechanics">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Logic</p>
-            <h2>Control loop mechanics</h2>
-          </div>
-        </div>
-        <div class="stack-grid">
-          <article class="detail-card">
-            <h3>1. Observe trajectory</h3>
-            <p>Collect messages, tool calls, failed checks, edits, and other runtime events instead of reasoning from prompt text alone.</p>
-          </article>
-          <article class="detail-card">
-            <h3>2. Extract signals</h3>
-            <p>Classify patterns such as repeated diagnostics, doom loops, unsafe changes, or fake-data escape with deterministic logic.</p>
-          </article>
-          <article class="detail-card">
-            <h3>3. Select intervention</h3>
-            <p>Rank candidate signals, apply a small card budget, enforce cooldowns, and pick only the most useful next-step guidance.</p>
-          </article>
-          <article class="detail-card">
-            <h3>4. Discard after use</h3>
-            <p>The intervention is turn-local. It is not promoted to a permanent hidden policy unless it proves to be a durable rule.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section detail-section" id="experiments">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Verification</p>
-            <h2>Experiment signals</h2>
-          </div>
-        </div>
-        <div class="stack-grid">
-          <article class="detail-card">
-            <h3>Long debugging trace</h3>
-            <p>The selector records multiple candidate failures but injects only the highest-priority cards so the prompt stays focused.</p>
-          </article>
-          <article class="detail-card">
-            <h3>Cooldown handling</h3>
-            <p>Repeated guidance is suppressed when the same signal keeps firing across nearby turns.</p>
-          </article>
-          <article class="detail-card">
-            <h3>Risky cleanup scenario</h3>
-            <p>Unsafe-change guidance fires when the agent reaches for destructive actions without enough evidence.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section detail-section" id="related">
-        <div class="section-head compact-head">
-          <div>
-            <p class="eyebrow">Related Controls</p>
-            <h2>Good pairings</h2>
-          </div>
-        </div>
-        <div class="next-grid">
-          <a href="self-verification-loop.html">
-            <span>Next control</span>
-            <strong>Self-Verification Loop</strong>
-            <p>Use this after guidance so the agent still has to prove the corrected output works.</p>
+    <main class="article-page">
+      <div class="article-wrap">
+        <aside class="article-rail" aria-label="Share this note">
+          <a class="rail-btn" href="../index.html" aria-label="Back to all notes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           </a>
-          <a href="reversible-sandbox-execution.html">
-            <span>State boundary</span>
-            <strong>Reversible Sandbox Execution</strong>
-            <p>Use this when the guidance is protecting high-risk edits or durable state.</p>
+          <div class="rail-sep"></div>
+          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=Decision-Time%20Guidance&url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on X">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
           </a>
-        </div>
-      </section>
+          <a class="rail-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+          </a>
+        </aside>
 
-      <footer class="footer-bar">
-        <p>Pattern 01 detail page.</p>
-        <div class="button-row">
-          <a class="button button-primary" href="../index.html">Back to catalog</a>
-          <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">Open README</a>
-        </div>
-      </footer>
+        <article class="article">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="sep">/</span>
+            <a href="../index.html#posts">Posts</a>
+            <span class="sep">/</span>
+            <span class="current">Decision-Time Guidance</span>
+          </nav>
+
+          <h1 class="article-title">Inject guidance only when the run needs it.</h1>
+          <p class="article-subtitle">Agent System Patterns · Note 01</p>
+
+          <div class="article-byline">
+            <div class="byline-id">
+              <span class="avatar">SP</span>
+              <div class="byline-meta">
+                <span class="byline-name">Sushant Pargaonkar</span>
+                <span class="byline-date">June 2026 · 4 min read</span>
+              </div>
+            </div>
+            <div class="byline-share">
+              <a class="share-btn" href="https://twitter.com/intent/tweet?text=Decision-Time%20Guidance&url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on X">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="View on GitHub">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.92c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <figure class="article-banner">
+            <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
+          </figure>
+
+          <div class="article-body">
+            <p class="article-lead">
+              Guidance works best as a runtime control layer. Instead of front-loading every reminder
+              into the prompt, a controller watches how the agent is behaving, spots a known failure
+              shape, and adds one short correction for the next decision only.
+            </p>
+
+            <h2>The core idea</h2>
+            <p>
+              Static prompts degrade when every reminder is loaded up front — each one becomes a tax
+              on every decision. Guidance is far more useful when it is
+              <strong>situational, ephemeral, budgeted, and tied to evidence</strong> from the current run.
+            </p>
+
+            <h2>The questions a controller asks</h2>
+            <ul>
+              <li>What is the agent doing right now?</li>
+              <li>Is this a known failure shape?</li>
+              <li>What is the smallest correction for the next turn only?</li>
+            </ul>
+
+            <h2>When to reach for it</h2>
+            <ul>
+              <li>Repeated runtime errors or edit loops.</li>
+              <li>Unsafe commands fired too early in a run.</li>
+              <li>Mock-data escapes and fake-progress behavior.</li>
+            </ul>
+
+            <h2>How it works</h2>
+            <ol>
+              <li><strong>Observe the trajectory.</strong> Collect messages, tool calls, failed checks, and edits — don't reason from the prompt text alone.</li>
+              <li><strong>Extract signals.</strong> Classify patterns like repeated diagnostics, doom loops, unsafe changes, or fake-data escapes with deterministic logic.</li>
+              <li><strong>Select one intervention.</strong> Rank the candidates, apply a small card budget, enforce cooldowns, and pick only the most useful next-step nudge.</li>
+              <li><strong>Discard after use.</strong> The correction is turn-local. It isn't promoted to a permanent hidden policy unless it proves to be a durable rule.</li>
+            </ol>
+
+            <h2>What the experiments show</h2>
+            <ul>
+              <li>A long debugging trace records many candidate failures, but only the highest-priority cards are injected so the prompt stays focused.</li>
+              <li>Repeated guidance is suppressed by cooldowns when the same signal keeps firing across nearby turns.</li>
+              <li>In a risky cleanup scenario, unsafe-change guidance fires when the agent reaches for destructive actions without enough evidence.</li>
+            </ul>
+
+            <h2>How it's built</h2>
+            <p>
+              The engine models trajectory events, deterministic classifiers, scoring, cooldowns, and a
+              short guidance-card bank — kept small and inspectable on purpose.
+            </p>
+          </div>
+
+          <section class="article-cta">
+            <h2>See how it actually runs</h2>
+            <p>Every note ships with runnable code and checked-in experiments. Read the implementation and reproduce the results yourself.</p>
+            <a class="button" href="https://github.com/sushant-97/agent-system-patterns">Read the code on GitHub</a>
+          </section>
+
+          <section class="article-related">
+            <p class="eyebrow">Read next</p>
+            <div class="related-grid">
+              <a href="self-verification-loop.html">
+                <span>Note 02</span>
+                <strong>Self-Verification Loop</strong>
+                <p>Once guidance corrects the agent, make it prove the corrected output actually works.</p>
+              </a>
+              <a href="reversible-sandbox-execution.html">
+                <span>Note 03</span>
+                <strong>Reversible Sandbox Execution</strong>
+                <p>When guidance is protecting high-risk edits, keep the work isolated until it's safe to promote.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+      </div>
     </main>
   </body>
 </html>
