@@ -4,7 +4,7 @@ This repository prefers engineering-team sources over vendor marketing pages.
 A reference is useful here when it explains a shipped system, an operational
 constraint, or a concrete control loop.
 
-## Primary Source
+## Primary Sources
 
 ### Replit: Decision-Time Guidance
 
@@ -13,6 +13,14 @@ Source: <https://replit.com/blog/decision-time-guidance>
 Why it matters here: the post describes a control layer that watches an agent's
 trajectory and injects short guidance at the moment it is likely to help. That
 maps directly to [Decision-Time Guidance](patterns/01-decision-time-guidance/README.md).
+
+### Replit: Inside Replit's Snapshot Engine
+
+Source: <https://replit.com/blog/inside-replits-snapshot-engine>
+
+Why it matters here: the post describes checkpointing, isolation, rollback, and
+promotion as infrastructure for agent workflows. That maps directly to
+[Reversible Sandbox Execution](patterns/03-reversible-sandbox-execution/README.md).
 
 ## Source Standard
 

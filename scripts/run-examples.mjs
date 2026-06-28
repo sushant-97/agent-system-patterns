@@ -40,8 +40,49 @@ function runDecisionTimeGuidanceDemo() {
   };
 }
 
+function runReversibleSandboxDemo() {
+  const demo = spawnSync(
+    "python3",
+    ["patterns/03-reversible-sandbox-execution/sandbox_engine.py"],
+    { encoding: "utf8" },
+  );
+
+  if (demo.status !== 0) {
+    return {
+      ok: false,
+      error: demo.stderr || demo.stdout || "Python reversible sandbox demo failed",
+    };
+  }
+
+  const experiments = spawnSync(
+    "python3",
+    ["patterns/03-reversible-sandbox-execution/experiments/run_experiments.py"],
+    { encoding: "utf8" },
+  );
+
+  if (experiments.status !== 0) {
+    return {
+      ok: false,
+      error:
+        experiments.stderr ||
+        experiments.stdout ||
+        "Reversible sandbox experiments failed",
+    };
+  }
+
+  const demoPayload = JSON.parse(demo.stdout);
+  const experimentPayload = JSON.parse(experiments.stdout);
+
+  return {
+    ok: demoPayload.ok && experimentPayload.pass,
+    demo: demoPayload,
+    experimentSummary: experimentPayload,
+  };
+}
+
 const demos = [
   ["Decision-Time Guidance", runDecisionTimeGuidanceDemo],
+  ["Reversible Sandbox Execution", runReversibleSandboxDemo],
 ];
 
 for (const [name, run] of demos) {
