@@ -17,6 +17,17 @@ failure shape, and intervene with a concise control."
 
 Reference: <https://replit.com/blog/decision-time-guidance>
 
+## Source Diagram Study
+
+Replit's post contains two technical figures that matter for this pattern:
+
+- Figure 1: static prompt reminders degrade as they accumulate.
+- Figure 2: decision-time guidance injects targeted guidance during the run.
+
+This repo does not copy those images. It includes a [source diagram study](source-diagrams/README.md)
+with links to the post, our own diagram reconstructions, and the logic explained
+in our terms.
+
 ## Core Claim
 
 Long-running agents should not carry every possible rule in the prompt. They
