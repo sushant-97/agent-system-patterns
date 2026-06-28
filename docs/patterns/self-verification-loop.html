@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Self-Verification Loop</title>
+    <meta
+      name="description"
+      content="Self-verification loop: require an agent to prove behavior works through executable checks and reruns after repair."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="site-body">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">Pattern 02</p>
+        <a class="brand-link" href="../index.html">Agent System Patterns</a>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/README.md">README</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/experiments/results/summary.json">Results</a>
+      </nav>
+    </header>
+
+    <main class="page-shell detail-shell">
+      <section class="detail-hero">
+        <div>
+          <p class="eyebrow">Self-Verification Loop</p>
+          <h1>Make the agent prove the behavior, not just narrate completion.</h1>
+          <p class="hero-text">
+            This pattern adds a second loop around agent output: build, verify behavior, inspect
+            failure evidence, repair, and rerun. A UI or API is not accepted because it looks plausible.
+            It is accepted only when independent checks confirm the intended state transition happened.
+          </p>
+        </div>
+        <div class="detail-stats">
+          <article>
+            <span>Production signal</span>
+            <strong>Replit automated self-testing</strong>
+          </article>
+          <article>
+            <span>Experiments</span>
+            <strong>3 / 3 pass</strong>
+          </article>
+          <article>
+            <span>Implementation</span>
+            <strong>Python verification engine</strong>
+          </article>
+        </div>
+      </section>
+
+      <figure class="detail-diagram">
+        <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/02-self-verification-loop/assets/shallow-vs-behavioral.svg" alt="Shallow versus behavioral verification diagram" />
+      </figure>
+
+      <section class="detail-grid">
+        <article class="detail-card">
+          <h2>Core claim</h2>
+          <p>Generated output can be convincing while still broken. The system needs a verifier that executes user intent and captures durable evidence.</p>
+        </article>
+        <article class="detail-card">
+          <h2>Verifier questions</h2>
+          <ul class="mini-list">
+            <li>Can a user complete the intended action?</li>
+            <li>Did state change in the right place?</li>
+            <li>Did the check observe behavior, not just structure?</li>
+          </ul>
+        </article>
+        <article class="detail-card">
+          <h2>Best use cases</h2>
+          <ul class="mini-list">
+            <li>User-facing flows and tool-driven tasks.</li>
+            <li>Cases where screenshots or file existence are misleading.</li>
+            <li>Workflows where failure evidence can guide repair.</li>
+          </ul>
+        </article>
+        <article class="detail-card">
+          <h2>Implementation shape</h2>
+          <p>The Python model includes an application, executable scenarios, verification steps, evidence capture, and a repair loop that reruns the same behavior after fixes.</p>
+        </article>
+      </section>
+
+      <section class="section detail-section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Logic</p>
+            <h2>What separates strong verification from shallow checks.</h2>
+          </div>
+        </div>
+        <div class="stack-grid">
+          <article class="detail-card">
+            <h3>1. Execute intent</h3>
+            <p>The verifier should interact with the artifact as a user or caller would, not merely inspect whether elements exist.</p>
+          </article>
+          <article class="detail-card">
+            <h3>2. Capture evidence</h3>
+            <p>Record state changes, logs, outputs, and failure assertions so the repair step has something concrete to reason from.</p>
+          </article>
+          <article class="detail-card">
+            <h3>3. Repair from failure</h3>
+            <p>The repair step should target the observed gap, not wander into generic improvement mode.</p>
+          </article>
+          <article class="detail-card">
+            <h3>4. Rerun the same scenario</h3>
+            <p>The system is only done when the original failing behavior passes under the same executable check.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section detail-section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Verification</p>
+            <h2>What the experiments show.</h2>
+          </div>
+        </div>
+        <div class="stack-grid">
+          <article class="detail-card">
+            <h3>Shallow false pass</h3>
+            <p>A success-looking signup flow passes a naive checker even though no persistent state actually changes.</p>
+          </article>
+          <article class="detail-card">
+            <h3>Behavioral catch</h3>
+            <p>The stronger verifier executes the flow, inspects durable state, and rejects the Potemkin app.</p>
+          </article>
+          <article class="detail-card">
+            <h3>Repair rerun</h3>
+            <p>After a targeted fix, the system reruns the same scenario and accepts the app only when the state mutation is real.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer-bar">
+        <p>Pattern 02 detail page.</p>
+        <div class="button-row">
+          <a class="button button-primary" href="../index.html">Back to catalog</a>
+          <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/02-self-verification-loop/README.md">Open README</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Decision-Time Guidance</title>
+    <meta
+      name="description"
+      content="Decision-time guidance: inject targeted control instructions only when the current agent trajectory shows a known failure mode."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="site-body">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">Pattern 01</p>
+        <a class="brand-link" href="../index.html">Agent System Patterns</a>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">README</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/experiments/results/summary.json">Results</a>
+      </nav>
+    </header>
+
+    <main class="page-shell detail-shell">
+      <section class="detail-hero">
+        <div>
+          <p class="eyebrow">Decision-Time Guidance</p>
+          <h1>Inject the smallest useful rule at the moment the trajectory needs it.</h1>
+          <p class="hero-text">
+            This pattern treats guidance as a runtime control layer. The agent does not carry every
+            possible reminder from the start. The controller watches behavior, classifies failure
+            shapes, and inserts one temporary nudge for the next decision only.
+          </p>
+        </div>
+        <div class="detail-stats">
+          <article>
+            <span>Production signal</span>
+            <strong>Replit decision-time guidance</strong>
+          </article>
+          <article>
+            <span>Experiments</span>
+            <strong>3 / 3 pass</strong>
+          </article>
+          <article>
+            <span>Implementation</span>
+            <strong>Python guidance engine</strong>
+          </article>
+        </div>
+      </section>
+
+      <figure class="detail-diagram">
+        <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/01-decision-time-guidance/assets/control-loop.svg" alt="Decision-time guidance control loop diagram" />
+      </figure>
+
+      <section class="detail-grid">
+        <article class="detail-card">
+          <h2>Core claim</h2>
+          <p>Static prompts degrade when every reminder is loaded up front. Guidance works better when it is situational, ephemeral, budgeted, and tied to evidence from the current run.</p>
+        </article>
+        <article class="detail-card">
+          <h2>Controller questions</h2>
+          <ul class="mini-list">
+            <li>What is the agent doing right now?</li>
+            <li>Is this a known failure shape?</li>
+            <li>What is the smallest correction for the next turn only?</li>
+          </ul>
+        </article>
+        <article class="detail-card">
+          <h2>Best use cases</h2>
+          <ul class="mini-list">
+            <li>Repeated runtime errors or edit loops.</li>
+            <li>Unsafe commands too early in the run.</li>
+            <li>Mock-data escape and fake progress behavior.</li>
+          </ul>
+        </article>
+        <article class="detail-card">
+          <h2>Implementation shape</h2>
+          <p>The Python engine models trajectory events, deterministic classifiers, scoring, cooldowns, and a short guidance-card bank. It intentionally keeps V1 logic inspectable.</p>
+        </article>
+      </section>
+
+      <section class="section detail-section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Logic</p>
+            <h2>How the control loop works.</h2>
+          </div>
+        </div>
+        <div class="stack-grid">
+          <article class="detail-card">
+            <h3>1. Observe trajectory</h3>
+            <p>Collect messages, tool calls, failed checks, edits, and other runtime events instead of reasoning from prompt text alone.</p>
+          </article>
+          <article class="detail-card">
+            <h3>2. Extract signals</h3>
+            <p>Classify patterns such as repeated diagnostics, doom loops, unsafe changes, or fake-data escape with deterministic logic.</p>
+          </article>
+          <article class="detail-card">
+            <h3>3. Select intervention</h3>
+            <p>Rank candidate signals, apply a small card budget, enforce cooldowns, and pick only the most useful next-step guidance.</p>
+          </article>
+          <article class="detail-card">
+            <h3>4. Discard after use</h3>
+            <p>The intervention is turn-local. It is not promoted to a permanent hidden policy unless it proves to be a durable rule.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section detail-section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Verification</p>
+            <h2>What the experiments show.</h2>
+          </div>
+        </div>
+        <div class="stack-grid">
+          <article class="detail-card">
+            <h3>Long debugging trace</h3>
+            <p>The selector records multiple candidate failures but injects only the highest-priority cards so the prompt stays focused.</p>
+          </article>
+          <article class="detail-card">
+            <h3>Cooldown handling</h3>
+            <p>Repeated guidance is suppressed when the same signal keeps firing across nearby turns.</p>
+          </article>
+          <article class="detail-card">
+            <h3>Risky cleanup scenario</h3>
+            <p>Unsafe-change guidance fires when the agent reaches for destructive actions without enough evidence.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer-bar">
+        <p>Pattern 01 detail page.</p>
+        <div class="button-row">
+          <a class="button button-primary" href="../index.html">Back to catalog</a>
+          <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/01-decision-time-guidance/README.md">Open README</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>

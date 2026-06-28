@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reversible Sandbox Execution</title>
+    <meta
+      name="description"
+      content="Reversible sandbox execution: isolate risky agent work behind checkpoints, verification, and merge policy."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="site-body">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">Pattern 03</p>
+        <a class="brand-link" href="../index.html">Agent System Patterns</a>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">README</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/experiments/results/summary.json">Results</a>
+      </nav>
+    </header>
+
+    <main class="page-shell detail-shell">
+      <section class="detail-hero">
+        <div>
+          <p class="eyebrow">Reversible Sandbox Execution</p>
+          <h1>Give the agent room to explore without giving up authority over durable state.</h1>
+          <p class="hero-text">
+            This pattern places risky agent work behind snapshots, isolated attempts, verification,
+            and merge policy. The canonical workspace stays protected until a candidate diff proves
+            it is safe enough to promote.
+          </p>
+        </div>
+        <div class="detail-stats">
+          <article>
+            <span>Production signal</span>
+            <strong>Replit snapshot engine</strong>
+          </article>
+          <article>
+            <span>Experiments</span>
+            <strong>4 / 4 pass</strong>
+          </article>
+          <article>
+            <span>Implementation</span>
+            <strong>Python sandbox engine</strong>
+          </article>
+        </div>
+      </section>
+
+      <figure class="detail-diagram">
+        <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
+      </figure>
+
+      <section class="detail-grid">
+        <article class="detail-card">
+          <h2>Core claim</h2>
+          <p>Autonomous agents need exploration room, but product systems need recovery, auditability, and explicit promotion gates.</p>
+        </article>
+        <article class="detail-card">
+          <h2>Controller questions</h2>
+          <ul class="mini-list">
+            <li>What state is the agent allowed to touch?</li>
+            <li>Can this attempt be fully rolled back?</li>
+            <li>Which changes are safe to promote?</li>
+          </ul>
+        </article>
+        <article class="detail-card">
+          <h2>Best use cases</h2>
+          <ul class="mini-list">
+            <li>Stateful edits to files, data, or dependencies.</li>
+            <li>High-blast-radius work needing auditability.</li>
+            <li>Cases where multiple candidate attempts should be compared.</li>
+          </ul>
+        </article>
+        <article class="detail-card">
+          <h2>Implementation shape</h2>
+          <p>The Python model includes immutable checkpoints, isolated sandbox attempts, invariant verification, diffing, and a merge policy that can reject risky state transitions.</p>
+        </article>
+      </section>
+
+      <section class="section detail-section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Logic</p>
+            <h2>How the promotion boundary works.</h2>
+          </div>
+        </div>
+        <div class="stack-grid">
+          <article class="detail-card">
+            <h3>1. Create checkpoint</h3>
+            <p>The controller snapshots canonical state before the agent begins so every attempt has a stable fork point.</p>
+          </article>
+          <article class="detail-card">
+            <h3>2. Run in isolation</h3>
+            <p>The agent edits a sandbox copy instead of the durable workspace, which keeps failed attempts inspectable and reversible.</p>
+          </article>
+          <article class="detail-card">
+            <h3>3. Verify and diff</h3>
+            <p>Invariant checks and explicit change records tell the controller exactly what changed and whether the result is acceptable.</p>
+          </article>
+          <article class="detail-card">
+            <h3>4. Promote selectively</h3>
+            <p>Only changes that satisfy verification and merge policy are applied back to canonical state.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section detail-section">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Verification</p>
+            <h2>What the experiments show.</h2>
+          </div>
+        </div>
+        <div class="stack-grid">
+          <article class="detail-card">
+            <h3>Safe UI copy</h3>
+            <p>A limited file edit passes verification and is promoted back to canonical state.</p>
+          </article>
+          <article class="detail-card">
+            <h3>Destructive billing migration</h3>
+            <p>The merge policy rejects state changes that would delete or damage durable data.</p>
+          </article>
+          <article class="detail-card">
+            <h3>External side effect</h3>
+            <p>Attempts that create non-reversible external effects are blocked even if the local diff looks harmless.</p>
+          </article>
+          <article class="detail-card">
+            <h3>Competing attempts</h3>
+            <p>Multiple sandboxes can be compared so the system promotes the safer or more correct candidate.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer-bar">
+        <p>Pattern 03 detail page.</p>
+        <div class="button-row">
+          <a class="button button-primary" href="../index.html">Back to catalog</a>
+          <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/README.md">Open README</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
