@@ -135,7 +135,9 @@ img {
 }
 
 .hero,
+.source-band,
 .loop-strip,
+.featured-release,
 .pattern-card,
 .evidence-table a,
 .system-map,
@@ -143,6 +145,7 @@ img {
 .comparison-grid article,
 .decision-table,
 .gap-grid article,
+.value-grid article,
 .detail-card,
 .detail-diagram,
 .source-strip,
@@ -160,6 +163,27 @@ img {
   gap: 18px;
   padding: 24px;
   box-shadow: var(--shadow-md);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: var(--cool-panel);
+  color: var(--green);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pill span {
+  width: 7px;
+  height: 7px;
+  background: var(--green);
 }
 
 .hero-copy h1,
@@ -267,6 +291,41 @@ img {
   color: #f5a36b;
 }
 
+.source-band {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.source-band > * {
+  min-height: 48px;
+  padding: 14px 16px;
+  border-right: 1px solid var(--line);
+}
+
+.source-band > *:last-child {
+  border-right: 0;
+}
+
+.source-band p,
+.source-band span,
+.source-band a {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.source-band a {
+  color: var(--accent-deep);
+}
+
 .loop-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -310,6 +369,42 @@ img {
 
 .section {
   margin-top: 24px;
+}
+
+.featured-release {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(340px, 1.18fr);
+  gap: 0;
+  overflow: hidden;
+}
+
+.featured-copy {
+  padding: 22px;
+  border-right: 1px solid var(--line);
+}
+
+.featured-copy h2 {
+  max-width: 10ch;
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 3.75rem;
+  font-weight: 400;
+  line-height: 0.94;
+}
+
+.featured-copy p {
+  margin: 16px 0 0;
+  color: var(--muted);
+}
+
+.featured-diagram {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 20px;
+  background:
+    linear-gradient(180deg, rgba(14, 104, 104, 0.06), rgba(183, 73, 45, 0.04)),
+    var(--paper-strong);
 }
 
 .section-head {
@@ -375,6 +470,7 @@ img {
 
 .map-node span,
 .comparison-grid span,
+.gap-grid span,
 .source-strip span,
 .next-grid span {
   display: block;
@@ -389,6 +485,7 @@ img {
 .map-node h3,
 .comparison-grid h3,
 .gap-grid h3,
+.value-grid h3,
 .next-grid strong {
   display: block;
   margin: 0;
@@ -401,6 +498,7 @@ img {
 .map-node p,
 .comparison-grid p,
 .gap-grid p,
+.value-grid p,
 .source-strip p,
 .next-grid p {
   margin: 12px 0 0;
@@ -470,7 +568,8 @@ img {
 
 .comparison-grid,
 .gap-grid,
-.next-grid {
+.next-grid,
+.value-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
@@ -478,6 +577,7 @@ img {
 
 .comparison-grid article,
 .gap-grid article,
+.value-grid article,
 .next-grid a {
   padding: 18px;
   text-decoration: none;
@@ -657,6 +757,7 @@ img {
 
 @media (prefers-reduced-motion: no-preference) {
   .hero,
+  .featured-release,
   .loop-strip,
   .pattern-card,
   .evidence-table a,
@@ -689,11 +790,13 @@ img {
 
 @media (max-width: 1100px) {
   .compact-hero,
+  .featured-release,
   .detail-hero,
   .pattern-grid,
   .system-map,
   .comparison-grid,
   .gap-grid,
+  .value-grid,
   .detail-grid,
   .stack-grid,
   .next-grid {
@@ -743,6 +846,11 @@ img {
     display: none;
   }
 
+  .featured-copy {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
   .table-row,
   .table-head {
     grid-template-columns: 1fr;
@@ -765,10 +873,13 @@ img {
   }
 
   .compact-hero,
+  .featured-copy,
+  .featured-diagram,
   .pattern-card,
   .evidence-table a,
   .comparison-grid article,
   .gap-grid article,
+  .value-grid article,
   .detail-card,
   .detail-diagram,
   .source-strip article,
@@ -789,5 +900,9 @@ img {
 
   .pattern-card h3 {
     font-size: 2.5rem;
+  }
+
+  .featured-copy h2 {
+    font-size: 3rem;
   }
 }

@@ -24,8 +24,10 @@
       </div>
       <nav class="topnav" aria-label="Primary">
         <a href="#map">Map</a>
-        <a href="#patterns">Patterns</a>
+        <a href="#patterns">Archive</a>
         <a href="#compare">Compare</a>
+        <a href="#why">Why</a>
+        <a href="#roadmap">Roadmap</a>
         <a href="#evidence">Evidence</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/README.md">README</a>
         <a href="https://github.com/sushant-97/agent-system-patterns/blob/main/docs/principles.md">Principles</a>
@@ -35,6 +37,10 @@
     <main class="page-shell">
       <section class="hero compact-hero">
         <div class="hero-copy">
+          <div class="status-pill">
+            <span></span>
+            Now reading: Pattern 03
+          </div>
           <p class="eyebrow">Agent System Patterns</p>
           <h1>Reliable agent systems need controls around the model, not just better prompts.</h1>
           <p class="hero-text">
@@ -73,6 +79,15 @@
         </aside>
       </section>
 
+      <section class="source-band" aria-label="Engineering source signals">
+        <p>Built from engineering signals</p>
+        <a href="https://replit.com/blog/decision-time-guidance">Decision-time guidance</a>
+        <a href="https://replit.com/blog/automated-self-testing">Automated self-testing</a>
+        <a href="https://replit.com/blog/inside-replits-snapshot-engine">Snapshot engine</a>
+        <span>Python examples</span>
+        <span>Checked-in experiments</span>
+      </section>
+
       <section class="loop-strip" aria-label="Reliability loop">
         <article>
           <span>01</span>
@@ -89,6 +104,27 @@
           <h2>Bound</h2>
           <p>Fork state, attempt risky work in isolation, and promote only approved diffs.</p>
         </article>
+      </section>
+
+      <section class="section" id="latest">
+        <div class="featured-release">
+          <div class="featured-copy">
+            <p class="eyebrow">Latest Release</p>
+            <h2>Reversible Sandbox Execution</h2>
+            <p>
+              Agents need room to explore, but durable state needs a gatekeeper.
+              This pattern models checkpointed attempts, verification, diff review,
+              and promotion policy as one control boundary.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="patterns/reversible-sandbox-execution.html">Read latest pattern</a>
+              <a class="button button-secondary" href="https://github.com/sushant-97/agent-system-patterns/blob/main/patterns/03-reversible-sandbox-execution/sandbox_engine.py">Open Python engine</a>
+            </div>
+          </div>
+          <figure class="featured-diagram">
+            <img src="https://raw.githubusercontent.com/sushant-97/agent-system-patterns/main/patterns/03-reversible-sandbox-execution/assets/snapshot-fork-promote.svg" alt="Snapshot fork promote pipeline diagram" />
+          </figure>
+        </div>
       </section>
 
       <section class="section" id="map">
@@ -135,11 +171,11 @@
       <section class="section" id="patterns">
         <div class="section-head compact-head">
           <div>
-            <p class="eyebrow">Pattern Catalog</p>
-            <h2>Pick a pattern and go deeper.</h2>
+            <p class="eyebrow">The Archive</p>
+            <h2>Browse the reliability pattern library.</h2>
           </div>
           <p class="section-note">
-            The landing page stays compact. Each card links to an internal detail page with diagrams,
+            Each entry links to an internal detail page with diagrams,
             logic, experiments, and source references.
           </p>
         </div>
@@ -225,6 +261,46 @@
         </div>
       </section>
 
+      <section class="section" id="why">
+        <div class="section-head compact-head">
+          <div>
+            <p class="eyebrow">Why This Catalog?</p>
+            <h2>Built for people who want to implement the controls.</h2>
+          </div>
+          <p class="section-note">
+            A clarity-first content model tuned for an engineering repo:
+            source signal, implementation, evidence, and tradeoffs in one place.
+          </p>
+        </div>
+
+        <div class="value-grid">
+          <article>
+            <h3>Visual first</h3>
+            <p>Every pattern has a diagram so the control boundary is visible before the code appears.</p>
+          </article>
+          <article>
+            <h3>Python core</h3>
+            <p>The main logic is executable Python, not pseudo-architecture dressed up as a repo.</p>
+          </article>
+          <article>
+            <h3>Source anchored</h3>
+            <p>Each page points back to an engineering post and separates source signal from repo interpretation.</p>
+          </article>
+          <article>
+            <h3>Experiment backed</h3>
+            <p>Every pattern carries checked-in results so visitors can inspect more than claims.</p>
+          </article>
+          <article>
+            <h3>Decision oriented</h3>
+            <p>The chooser and comparison table help readers decide which control solves their current failure.</p>
+          </article>
+          <article>
+            <h3>Production honest</h3>
+            <p>The site names gaps like telemetry schema, regression corpus, override paths, and cost budgets.</p>
+          </article>
+        </div>
+      </section>
+
       <section class="section" id="compare">
         <div class="section-head compact-head">
           <div>
@@ -283,28 +359,32 @@
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" id="roadmap">
         <div class="section-head compact-head">
           <div>
-            <p class="eyebrow">Missing Pieces</p>
-            <h2>What a production version still needs.</h2>
+            <p class="eyebrow">Roadmap</p>
+            <h2>What the catalog should grow into next.</h2>
           </div>
         </div>
 
         <div class="gap-grid">
           <article>
+            <span>Next</span>
             <h3>Telemetry schema</h3>
             <p>A shared event model for tool calls, failed checks, file edits, browser actions, and state diffs.</p>
           </article>
           <article>
+            <span>Next</span>
             <h3>Regression corpus</h3>
             <p>Known bad trajectories and golden repairs so changes to the harness do not silently weaken controls.</p>
           </article>
           <article>
+            <span>Next</span>
             <h3>Human override path</h3>
             <p>A way to inspect suppressed guidance, rejected diffs, and verifier failures without rerunning the whole session.</p>
           </article>
           <article>
+            <span>Next</span>
             <h3>Cost budget</h3>
             <p>Rules for when to verify deeply, when to sample, and when a cheaper structural check is enough.</p>
           </article>
