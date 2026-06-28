@@ -22,6 +22,15 @@ Why it matters here: the post describes checkpointing, isolation, rollback, and
 promotion as infrastructure for agent workflows. That maps directly to
 [Reversible Sandbox Execution](patterns/03-reversible-sandbox-execution/README.md).
 
+### Replit: Automated Self-Testing
+
+Source: <https://replit.com/blog/automated-self-testing>
+
+Why it matters here: the post describes automated self-testing for coding agents:
+the agent can interact with the app, observe failures, and repair from runtime
+evidence. That maps directly to
+[Self-Verification Loop](patterns/02-self-verification-loop/README.md).
+
 ## Source Standard
 
 Accepted sources:

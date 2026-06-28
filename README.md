@@ -18,7 +18,14 @@ or role-play agent templates. Each pattern includes:
 | Pattern | Use It When | Core Control |
 | --- | --- | --- |
 | [Decision-Time Guidance](patterns/01-decision-time-guidance/README.md) | An agent is drifting, looping, ignoring logs, or overusing generic instructions | Watch the trajectory and inject a short, evidence-backed nudge only when the current decision needs it |
+| [Self-Verification Loop](patterns/02-self-verification-loop/README.md) | An agent produces plausible output but may not have working behavior | Run an executable scenario, capture evidence, repair from failure, and rerun |
 | [Reversible Sandbox Execution](patterns/03-reversible-sandbox-execution/README.md) | An agent needs to edit code/data but direct side effects are risky | Fork state, run the attempt in isolation, verify it, and promote only approved diffs |
+
+Together, the three patterns form a reliability loop:
+
+```text
+guide the decision -> verify the result -> bound the side effects
+```
 
 ## Quickstart
 
@@ -34,6 +41,9 @@ Run individual patterns:
 python3 patterns/01-decision-time-guidance/guidance_engine.py
 python3 patterns/01-decision-time-guidance/experiments/run_experiments.py
 
+python3 patterns/02-self-verification-loop/verification_engine.py
+python3 patterns/02-self-verification-loop/experiments/run_experiments.py
+
 python3 patterns/03-reversible-sandbox-execution/sandbox_engine.py
 python3 patterns/03-reversible-sandbox-execution/experiments/run_experiments.py
 ```
@@ -44,6 +54,11 @@ python3 patterns/03-reversible-sandbox-execution/experiments/run_experiments.py
 patterns/
   01-decision-time-guidance/
     guidance_engine.py
+    experiments/
+    source-diagrams/
+    assets/
+  02-self-verification-loop/
+    verification_engine.py
     experiments/
     source-diagrams/
     assets/
@@ -63,9 +78,12 @@ The repo prioritizes technical writing from product engineering teams. For the
 current patterns, the primary sources are Replit engineering posts:
 
 - [Decision-Time Guidance](https://replit.com/blog/decision-time-guidance)
+- [Automated Self-Testing](https://replit.com/blog/automated-self-testing)
 - [Inside Replit's Snapshot Engine](https://replit.com/blog/inside-replits-snapshot-engine)
 
 See [references.md](references.md) for source notes.
+
+See [docs/principles.md](docs/principles.md) for the repo's design principles.
 
 ## Pattern Quality Bar
 
@@ -82,18 +100,14 @@ A pattern should not be added unless it has:
 
 Planned next additions:
 
-1. **Self-Verification Loop**  
-   Agent builds, runs checks, inspects evidence, repairs, and reruns before
-   claiming completion.
-
-2. **Static Prompt vs Runtime Control Comparison**  
+1. **Static Prompt vs Runtime Control Comparison**  
    A small experiment comparing global reminders against decision-time guidance.
 
-3. **Sandbox Merge Policy Extensions**  
+2. **Sandbox Merge Policy Extensions**  
    More realistic diff categories: dependency upgrades, schema migrations,
    generated files, secrets, and network effects.
 
-4. **Trace Viewer**  
+3. **Trace Viewer**  
    A lightweight static view for agent trajectories, detected signals, injected
    guidance, sandbox diffs, and promotion decisions.
 
@@ -103,4 +117,3 @@ Planned next additions:
 - Generic multi-agent role templates.
 - Framework comparison matrices.
 - Claims of reliability without executable checks or cited evidence.
-
