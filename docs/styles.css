@@ -908,6 +908,35 @@ img {
   font-weight: 500;
 }
 
+/* Simple line-icon thumbnails (per category) */
+.post-thumb--icon svg {
+  width: 54px;
+  height: 54px;
+}
+
+.post-thumb--guidance {
+  background: rgba(93, 106, 131, 0.12);
+  border-color: rgba(93, 106, 131, 0.26);
+  color: var(--slate);
+}
+
+.post-thumb--verification {
+  background: var(--green-soft);
+  border-color: rgba(79, 122, 82, 0.28);
+  color: var(--green);
+}
+
+.post-thumb--containment {
+  background: var(--accent-soft);
+  border-color: rgba(192, 97, 59, 0.28);
+  color: var(--accent-deep);
+}
+
+.post-link:hover .post-thumb--icon svg {
+  transform: scale(1.06);
+  transition: transform 220ms ease;
+}
+
 /* ---------- Reading-progress bar ---------- */
 .scroll-progress {
   position: fixed;
