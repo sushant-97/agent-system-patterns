@@ -3,41 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Paged Attention: Memory Management for LLMs — Agent System Patterns</title>
-    <meta
-      name="description"
-      content="How PagedAttention revolutionized LLM serving by applying virtual memory paging concepts to the KV cache, eliminating fragmentation and enabling memory sharing."
-    />
+    <title>Paged Attention: A Hands-On Guide — Agent System Patterns</title>
+    <meta name="description" content="A detailed, hands-on explanation of PagedAttention, the algorithm that revolutionized LLM serving by applying OS-level virtual memory paging to the KV cache." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../styles.css" />
     <style>
-      /* ---- Diagram styles (scoped) ---- */
-      .demo {
-        margin: clamp(26px, 4vw, 42px) 0 0;
-        padding: clamp(16px, 3vw, 28px);
-        border: 1px solid rgba(25, 23, 18, 0.24);
-        border-radius: var(--r-lg);
-        background: radial-gradient(130% 130% at 18% 0%, #251d15, #15110c 72%);
-        box-shadow: var(--shadow-sm);
-        overflow: hidden;
-      }
+      /* ---- Diagram styles ---- */
+      .demo { margin: clamp(26px, 4vw, 42px) 0 0; padding: clamp(16px, 3vw, 28px); border: 1px solid rgba(25, 23, 18, 0.24); border-radius: var(--r-lg); background: radial-gradient(130% 130% at 18% 0%, #251d15, #15110c 72%); box-shadow: var(--shadow-sm); overflow: hidden; }
       .demo svg { width: 100%; height: auto; display: block; }
-      .demo figcaption {
-        margin-top: 14px;
-        text-align: center;
-        font-size: 12.5px;
-        color: rgba(243, 230, 214, 0.5);
-      }
-
-      /* Shared animation classes */
+      .demo figcaption { margin-top: 14px; text-align: center; font-size: 12.5px; color: rgba(243, 230, 214, 0.5); }
+      
       .viz-node { transform-box: fill-box; transform-origin: center; animation: vizPulse 2.6s ease-in-out infinite; }
       .viz-node.d2 { animation-delay: 0.65s; }
       .viz-node.d3 { animation-delay: 1.3s; }
+      .viz-node.slow { animation-duration: 3.8s; }
       
       .viz-edge { stroke: rgba(243, 230, 214, 0.13); stroke-width: 1.3; fill: none; }
       .viz-flow { fill: none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 3 11; animation: vizDash 1.2s linear infinite; }
@@ -46,19 +27,43 @@
       .viz-flow.gold  { stroke: #e8bb6c; filter: drop-shadow(0 0 4px rgba(232,187,108,0.5)); }
       .viz-flow.green { stroke: #6db375; filter: drop-shadow(0 0 4px rgba(109,179,117,0.5)); }
       
-      /* Memory block specific */
-      .mem-block { stroke-width: 1; rx: 4; }
-      .mem-empty { fill: rgba(243, 230, 214, 0.05); stroke: rgba(243, 230, 214, 0.15); rx: 4; }
-      .mem-filled { fill: rgba(87,184,184,0.2); stroke: rgba(87,184,184,0.5); rx: 4; }
-      .mem-wasted { fill: rgba(226,135,90,0.15); stroke: rgba(226,135,90,0.4); opacity: 0.7; rx: 4; }
-      .mem-shared { fill: rgba(109,179,117,0.2); stroke: rgba(109,179,117,0.5); rx: 4; }
-      
+      .viz-dot { offset-distance: 0%; animation: vizMove 3s cubic-bezier(0.5,0,0.5,1) infinite; filter: drop-shadow(0 0 5px rgba(232,187,108,0.85)); }
+      .viz-dot.d2 { animation-delay: 1s; }
+      .viz-dot.d3 { animation-delay: 2s; }
+      .viz-dot.clay { filter: drop-shadow(0 0 5px rgba(226,135,90,0.85)); fill: #e2875a; }
+      .viz-dot.teal { filter: drop-shadow(0 0 5px rgba(87,184,184,0.85)); fill: #57b8b8; }
+      .viz-dot.green { filter: drop-shadow(0 0 5px rgba(109,179,117,0.85)); fill: #6db375; }
+      .viz-dot.gold { filter: drop-shadow(0 0 5px rgba(232,187,108,0.85)); fill: #e8bb6c; }
+
+      .viz-chip { fill: rgba(243, 230, 214, 0.05); stroke: rgba(243, 230, 214, 0.2); rx: 6; }
+      .viz-chip.clay { fill: rgba(226,135,90,0.1); stroke: rgba(226,135,90,0.35); }
+      .viz-chip.teal { fill: rgba(87,184,184,0.1); stroke: rgba(87,184,184,0.35); }
+      .viz-chip.green { fill: rgba(109,179,117,0.1); stroke: rgba(109,179,117,0.35); }
+      .viz-chip.gold  { fill: rgba(232,187,108,0.1); stroke: rgba(232,187,108,0.45); }
+      .viz-chip.wasted { fill: rgba(226,135,90,0.15); stroke: rgba(226,135,90,0.4); stroke-dasharray: 4 4; }
+
       .viz-label { fill: rgba(243, 230, 214, 0.88); font-family: var(--mono); font-size: 12.5px; text-anchor: middle; }
       .viz-label.sm { font-size: 10.5px; fill: rgba(243, 230, 214, 0.58); }
       .viz-label.left { text-anchor: start; }
+      .viz-label.right { text-anchor: end; }
       
-      @keyframes vizPulse { 0%, 100% { transform: scale(0.98); opacity: 0.8; } 50% { transform: scale(1.02); opacity: 1; } }
+      .code-block { background: #111009; border: 1px solid rgba(243, 230, 214, 0.1); border-radius: var(--r); padding: 20px 24px; overflow-x: auto; margin: clamp(20px, 3vw, 32px) 0 0; }
+      .code-block code { font-family: var(--mono); font-size: 13px; line-height: 1.75; color: rgba(243, 230, 214, 0.9); display: block; white-space: pre; }
+      .code-block .cm  { color: rgba(243, 230, 214, 0.35); }
+      .code-block .kw  { color: #e8bb6c; }
+      .code-block .str { color: #57b8b8; }
+      .code-block .acc { color: #e2875a; }
+      .code-block .dim { color: rgba(243, 230, 214, 0.45); }
+      
+      .compare { margin: clamp(24px,4vw,36px) 0 0; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+      .compare-row { display: grid; grid-template-columns: 1.1fr 1fr 1fr; }
+      .compare-row + .compare-row { border-top: 1px solid var(--line); }
+      .compare-row > * { padding: 14px 18px; font-size: 14.5px; line-height: 1.55; margin: 0; }
+      .compare-head > * { font-size: 10.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-deep); background: var(--surface-2); }
+      
+      @keyframes vizPulse { 0%, 100% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 1; } }
       @keyframes vizDash  { to { stroke-dashoffset: -14; } }
+      @keyframes vizMove  { 0% { offset-distance: 0%; } 80% { offset-distance: 100%; } 100% { offset-distance: 100%; } }
     </style>
   </head>
   <body class="site-body">
@@ -75,22 +80,16 @@
 
     <main class="article-page">
       <div class="article-wrap">
-        <aside class="article-rail" aria-label="Share this note">
-          <a class="rail-btn" href="../index.html" aria-label="Back to all notes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-          </a>
+        <aside class="article-rail">
+          <a class="rail-btn" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg></a>
         </aside>
 
         <article class="article">
-          <nav class="breadcrumb" aria-label="Breadcrumb">
-            <a href="../index.html">Home</a>
-            <span class="sep">/</span>
-            <a href="../index.html#posts">Posts</a>
-            <span class="sep">/</span>
-            <span class="current">Paged Attention</span>
+          <nav class="breadcrumb">
+            <a href="../index.html">Home</a><span class="sep">/</span><a href="../index.html#posts">Posts</a><span class="sep">/</span><span class="current">Paged Attention</span>
           </nav>
 
-          <h1 class="article-title">Paged Attention: <span class="grad">OS-level memory for LLMs</span></h1>
+          <h1 class="article-title">Paged Attention: <span class="grad">A Detailed Hands-On Guide</span></h1>
           <p class="article-subtitle">Agent System Patterns · Deep read</p>
 
           <div class="article-byline">
@@ -98,181 +97,298 @@
               <span class="avatar">SP</span>
               <div class="byline-meta">
                 <span class="byline-name">Sushant Pargaonkar</span>
-                <span class="byline-date">June 2026 · 10 min read</span>
+                <span class="byline-date">June 2026 · 14 min read</span>
               </div>
             </div>
           </div>
 
           <div class="article-body">
             <p class="article-lead">
-              Serving Large Language Models (LLMs) is incredibly memory-intensive. It's not just the model weights that consume VRAM; it's the context. The <strong>KV cache</strong> — which stores intermediate attention keys and values for every token — grows dynamically as the model generates new tokens. Before PagedAttention, managing this memory was highly inefficient. Memory fragmentation wasted up to 80% of VRAM, limiting batch sizes and throughput. PagedAttention fixed this by borrowing a classic idea from operating systems: virtual memory paging.
-            </p>
-
-            <h2>The Memory Fragmentation Problem</h2>
-            <p>
-              In autoregressive generation, you don't know in advance how many tokens a model will generate. The length of the output is unpredictable. Older LLM serving systems managed the KV cache by allocating contiguous blocks of memory for a sequence, guessing its maximum possible length.
+              Serving LLMs efficiently isn't just about fast matrix multiplications; it's heavily bottlenecked by memory management. The <strong>KV cache</strong> (which stores previous keys and values for attention) grows dynamically as a model generates tokens. Until recently, LLM serving engines reserved large contiguous chunks of memory per request, leading to massive fragmentation. <strong>PagedAttention</strong>, pioneered by the vLLM project, applies an operating system concept—virtual memory and page tables—to solve this.
             </p>
             <p>
-              This contiguous allocation leads to massive <span class="verdict-lead">internal fragmentation</span> (pre-allocated memory that is never used because the output was shorter than expected) and <span class="verdict-lead">external fragmentation</span> (available memory scattered in small chunks, unable to fit a new sequence).
+              In this post, we will walk through exactly how PagedAttention works under the hood with detailed hands-on examples, animated data flows, and Python pseudocode to model the memory allocator.
             </p>
 
-            <!-- Diagram 1: Fragmentation -->
+            <h2>The Trap of Contiguous Allocation</h2>
+            <p>
+              When a user sends a prompt to an LLM, the system cannot predict exactly how many tokens will be generated. The sequence could stop after 10 tokens, or continue for 2,000.
+            </p>
+            <p>
+              Before PagedAttention, systems like FasterTransformer would guess the maximum possible length (e.g., 2048 tokens) and allocate a contiguous block of VRAM for the KV cache. This leads to two critical problems:
+            </p>
+            <ul>
+              <li><strong>Internal Fragmentation:</strong> If the model stops at 100 tokens, the remaining 1948 tokens of memory are locked up and wasted. This historically resulted in 60-80% wasted memory.</li>
+              <li><strong>External Fragmentation:</strong> The available memory becomes scattered in small holes, meaning a new large request cannot be processed even if total free memory is sufficient.</li>
+            </ul>
+
             <figure class="demo reveal">
-              <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Memory Fragmentation vs Paged Memory">
-                <!-- Left Side: Contiguous -->
-                <text x="140" y="25" class="viz-label">Contiguous Memory</text>
-                <text x="140" y="40" class="viz-label sm">(High Fragmentation)</text>
+              <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg">
+                <!-- Contiguous Memory Box -->
+                <rect x="30" y="30" width="500" height="70" class="viz-chip" />
+                <text x="280" y="20" class="viz-label">Legacy: Contiguous Allocation (High Fragmentation)</text>
                 
-                <rect x="40" y="60" width="200" height="120" class="mem-empty" />
+                <!-- Seq A: 25% used, 75% wasted -->
+                <rect x="40" y="45" width="100" height="40" class="viz-chip teal viz-node" />
+                <rect x="145" y="45" width="120" height="40" class="viz-chip wasted viz-node d2" />
+                <text x="90" y="70" class="viz-label sm">Seq A (Used)</text>
+                <text x="205" y="70" class="viz-label sm" fill="#e2875a">Internal Frag</text>
                 
+                <!-- Seq B: 50% used, 50% wasted -->
+                <rect x="280" y="45" width="60" height="40" class="viz-chip clay viz-node d3" />
+                <rect x="345" y="45" width="50" height="40" class="viz-chip wasted viz-node" />
+                <text x="310" y="70" class="viz-label sm">Seq B</text>
+                
+                <!-- Seq C: Rejected due to External Frag -->
+                <rect x="410" y="45" width="110" height="40" class="viz-chip" stroke-dasharray="4 4" stroke="#e2875a" />
+                <text x="465" y="62" class="viz-label sm" fill="#e2875a">Seq C</text>
+                <text x="465" y="78" class="viz-label sm" fill="#e2875a">(Cannot Fit)</text>
+
+                <!-- Paged Memory Box -->
+                <rect x="30" y="150" width="500" height="70" class="viz-chip" />
+                <text x="280" y="140" class="viz-label">PagedAttention: Non-Contiguous Blocks (No Waste)</text>
+                
+                <!-- Small distinct blocks -->
+                <!-- Seq A Blocks -->
+                <rect x="40" y="165" width="40" height="40" class="viz-chip teal viz-node" />
+                <text x="60" y="190" class="viz-label sm">A1</text>
+                <rect x="90" y="165" width="40" height="40" class="viz-chip teal viz-node d2" />
+                <text x="110" y="190" class="viz-label sm">A2</text>
+                <rect x="190" y="165" width="40" height="40" class="viz-chip teal viz-node d3" />
+                <text x="210" y="190" class="viz-label sm">A3</text>
+
+                <!-- Seq B Blocks -->
+                <rect x="140" y="165" width="40" height="40" class="viz-chip clay viz-node d3" />
+                <text x="160" y="190" class="viz-label sm">B1</text>
+                <rect x="240" y="165" width="40" height="40" class="viz-chip clay viz-node" />
+                <text x="260" y="190" class="viz-label sm">B2</text>
+
+                <!-- Seq C can now fit -->
+                <rect x="290" y="165" width="40" height="40" class="viz-chip green viz-node d2" />
+                <text x="310" y="190" class="viz-label sm">C1</text>
+                <rect x="340" y="165" width="40" height="40" class="viz-chip green viz-node" />
+                <text x="360" y="190" class="viz-label sm">C2</text>
+                <rect x="440" y="165" width="40" height="40" class="viz-chip green viz-node d3" />
+                <text x="460" y="190" class="viz-label sm">C3</text>
+                
+                <!-- Free space available -->
+                <rect x="390" y="165" width="40" height="40" class="viz-chip" />
+                <text x="410" y="190" class="viz-label sm">Free</text>
+                <rect x="490" y="165" width="40" height="40" class="viz-chip" />
+                <text x="510" y="190" class="viz-label sm">Free</text>
+              </svg>
+              <figcaption>Contiguous allocation traps memory in wasted zones. Paged allocation chunks memory into small fixed-size blocks, perfectly utilizing available space.</figcaption>
+            </figure>
+
+            <h2>Core Concepts of PagedAttention</h2>
+            <p>
+              To solve this, PagedAttention treats the GPU KV cache exactly like an operating system treats physical RAM.
+            </p>
+            <ol>
+              <li><strong>Blocks:</strong> The KV cache is divided into fixed-size "blocks". Each block can hold the attention keys and values for a specific number of tokens (e.g., 16 tokens).</li>
+              <li><strong>Logical vs Physical:</strong> A sequence perceives its memory as a contiguous stream of "logical blocks". Under the hood, these map to randomly scattered "physical blocks" in GPU memory.</li>
+              <li><strong>Block Table:</strong> A map that translates logical block indices to physical block addresses in real-time during the attention computation.</li>
+            </ol>
+            <p>
+              Because blocks don't need to be contiguous, external fragmentation drops to 0%. Internal fragmentation only happens in the very last block of a sequence (averaging half a block of waste, which is negligible).
+            </p>
+
+            <h2>Hands-On Example: Processing Two Requests</h2>
+            <p>
+              Let's trace how a KV Cache Allocator processes tokens in real-time. We configure our system with a block size of <strong>4 tokens</strong> per block.
+            </p>
+            
+            <p><strong>Step 1: The Prompts Arrive</strong></p>
+            <ul>
+              <li><strong>Request 1:</strong> "Who is the CEO of" (5 tokens). Logical Blocks needed: 2 (Block 0 holds 4 tokens, Block 1 holds 1 token).</li>
+              <li><strong>Request 2:</strong> "Write a poem" (3 tokens). Logical Blocks needed: 1 (Block 0 holds 3 tokens).</li>
+            </ul>
+            <p>
+              The <code>BlockAllocator</code> pulls free physical blocks from memory and assigns them via the Block Table.
+            </p>
+
+            <figure class="demo reveal">
+              <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
                 <!-- Request 1 -->
-                <rect x="45" y="65" width="190" height="30" class="mem-wasted" />
-                <rect x="45" y="65" width="80" height="30" class="mem-filled" />
-                <text x="50" y="85" class="viz-label sm left" fill="#fff">Seq A (Used)</text>
-                <text x="135" y="85" class="viz-label sm left" fill="#e2875a">Internal Frag</text>
+                <rect x="20" y="40" width="120" height="50" class="viz-chip teal" />
+                <text x="80" y="60" class="viz-label sm">Request 1 (5 tokens)</text>
+                <text x="80" y="75" class="viz-label sm">Log 0, Log 1</text>
                 
                 <!-- Request 2 -->
-                <rect x="45" y="105" width="190" height="30" class="mem-wasted" />
-                <rect x="45" y="105" width="120" height="30" class="mem-filled" />
-                <text x="50" y="125" class="viz-label sm left" fill="#fff">Seq B (Used)</text>
-                
-                <!-- Request 3 -->
-                <rect x="45" y="145" width="190" height="30" fill="none" stroke="#e2875a" stroke-dasharray="4 4" stroke-width="2" rx="4" />
-                <text x="140" y="165" class="viz-label sm" fill="#e2875a">External Frag (Cannot fit)</text>
+                <rect x="20" y="120" width="120" height="50" class="viz-chip clay" />
+                <text x="80" y="140" class="viz-label sm">Request 2 (3 tokens)</text>
+                <text x="80" y="155" class="viz-label sm">Log 0</text>
 
-                <!-- Right Side: Paged -->
-                <text x="420" y="25" class="viz-label">Paged Memory</text>
-                <text x="420" y="40" class="viz-label sm">(Zero Ext. Fragmentation)</text>
-                
-                <rect x="320" y="60" width="200" height="120" class="mem-empty" />
-                
-                <!-- Blocks -->
-                <rect x="325" y="65" width="40" height="30" class="mem-filled viz-node" />
-                <rect x="375" y="65" width="40" height="30" class="mem-filled viz-node" />
-                <text x="345" y="85" class="viz-label sm">A1</text>
-                <text x="395" y="85" class="viz-label sm">A2</text>
-                
-                <rect x="425" y="65" width="40" height="30" class="mem-filled viz-node d2" />
-                <rect x="475" y="65" width="40" height="30" class="mem-filled viz-node d2" />
-                <rect x="325" y="105" width="40" height="30" class="mem-filled viz-node d2" />
-                <text x="445" y="85" class="viz-label sm">B1</text>
-                <text x="495" y="85" class="viz-label sm">B2</text>
-                <text x="345" y="125" class="viz-label sm">B3</text>
-                
-                <rect x="375" y="105" width="40" height="30" class="mem-shared viz-node d3" /> 
-                <rect x="425" y="105" width="40" height="30" class="mem-shared viz-node d3" /> 
-                <text x="395" y="125" class="viz-label sm">C1</text>
-                <text x="445" y="125" class="viz-label sm">C2</text>
-              </svg>
-              <figcaption>Contiguous memory wastes space with internal fragmentation. Paged memory allocates blocks dynamically, eliminating external fragmentation.</figcaption>
-            </figure>
-
-            <h2>The Block Table Solution</h2>
-            <p>
-              PagedAttention (introduced in <a href="https://vllm.ai/" target="_blank">vLLM</a>) solves this by decoupling logical memory from physical memory. The KV cache is divided into fixed-size "blocks" (pages), where each block contains the keys and values for a fixed number of tokens (e.g., 16 or 32 tokens).
-            </p>
-            <p>
-              A <span class="verdict-lead">Block Table</span> manages the mapping between logical blocks of a sequence and physical blocks in GPU memory. When a sequence generates new tokens, it dynamically allocates a new physical block only when the current one is full. Physical blocks do not need to be contiguous in memory.
-            </p>
-
-            <!-- Diagram 2: Block Table -->
-            <figure class="demo reveal">
-              <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Block Table Mapping">
-                <!-- Logical Blocks -->
-                <text x="100" y="30" class="viz-label">Logical KV Cache</text>
-                <rect x="40" y="50" width="120" height="135" class="mem-empty" />
-                <rect x="50" y="60" width="100" height="25" class="mem-filled viz-node" />
-                <text x="100" y="77" class="viz-label sm">Block 0</text>
-                <rect x="50" y="95" width="100" height="25" class="mem-filled viz-node d2" />
-                <text x="100" y="112" class="viz-label sm">Block 1</text>
-                <rect x="50" y="130" width="100" height="25" class="mem-filled viz-node d3" />
-                <text x="100" y="147" class="viz-label sm">Block 2</text>
-                
                 <!-- Block Table -->
-                <text x="280" y="30" class="viz-label">Block Table</text>
-                <rect x="220" y="50" width="120" height="135" class="mem-empty" />
-                <text x="280" y="77" class="viz-label sm">0 → Phys 3</text>
-                <text x="280" y="112" class="viz-label sm">1 → Phys 1</text>
-                <text x="280" y="147" class="viz-label sm">2 → Phys 4</text>
+                <rect x="220" y="20" width="120" height="170" class="viz-chip" />
+                <text x="280" y="40" class="viz-label">Block Table</text>
                 
-                <!-- Physical Blocks -->
-                <text x="460" y="30" class="viz-label">Physical KV Cache</text>
-                <rect x="400" y="50" width="120" height="150" class="mem-empty" />
-                <rect x="410" y="60" width="100" height="20" class="mem-empty" />
-                <text x="460" y="74" class="viz-label sm">Phys 0</text>
-                <rect x="410" y="85" width="100" height="20" class="mem-filled viz-node d2" />
-                <text x="460" y="99" class="viz-label sm">Phys 1 (Blk 1)</text>
-                <rect x="410" y="110" width="100" height="20" class="mem-empty" />
-                <text x="460" y="124" class="viz-label sm">Phys 2</text>
-                <rect x="410" y="135" width="100" height="20" class="mem-filled viz-node" />
-                <text x="460" y="149" class="viz-label sm">Phys 3 (Blk 0)</text>
-                <rect x="410" y="160" width="100" height="20" class="mem-filled viz-node d3" />
-                <text x="460" y="174" class="viz-label sm">Phys 4 (Blk 2)</text>
-
-                <!-- Flow Lines -->
-                <path d="M150 72 L220 72" class="viz-flow teal" />
-                <path d="M150 107 L220 107" class="viz-flow teal" />
-                <path d="M150 142 L220 142" class="viz-flow teal" />
-                
-                <path d="M340 72 L410 145" class="viz-flow gold" />
-                <path d="M340 107 L410 95" class="viz-flow gold" />
-                <path d="M340 142 L410 170" class="viz-flow gold" />
-              </svg>
-              <figcaption>The Block Table maps contiguous logical blocks into non-contiguous physical blocks in GPU memory.</figcaption>
-            </figure>
-
-            <h2>Unlocking Memory Sharing</h2>
-            <p>
-              Once you have page tables for memory management, another powerful capability unlocks: <span class="verdict-lead">Memory Sharing</span>. In many LLM workflows — like parallel decoding, beam search, or complex agent prompting — multiple sequences share the exact same system prompt or prefix.
-            </p>
-            <p>
-              With PagedAttention, the Block Table allows multiple sequences to point to the <em>same</em> physical blocks for their shared prefix. Memory is only allocated when they diverge (Copy-on-Write). This slashes memory usage for complex decoding tasks by up to 55%.
-            </p>
-
-            <!-- Diagram 3: Memory Sharing -->
-            <figure class="demo reveal">
-              <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Memory Sharing">
-                <!-- Shared Prompt -->
-                <text x="140" y="30" class="viz-label">Logical Seq A</text>
-                <rect x="40" y="50" width="200" height="25" class="mem-shared" />
-                <text x="140" y="67" class="viz-label sm">System Prompt (Shared)</text>
-                <rect x="40" y="80" width="100" height="25" class="mem-filled" />
-                <text x="90" y="97" class="viz-label sm">Output A</text>
-
-                <text x="140" y="130" class="viz-label">Logical Seq B</text>
-                <rect x="40" y="150" width="200" height="25" class="mem-shared" />
-                <text x="140" y="167" class="viz-label sm">System Prompt (Shared)</text>
-                <rect x="40" y="180" width="100" height="25" class="mem-wasted" />
-                <text x="90" y="197" class="viz-label sm">Output B</text>
+                <text x="280" y="70" class="viz-label sm" fill="#57b8b8">Req1 L0 → P7</text>
+                <text x="280" y="90" class="viz-label sm" fill="#57b8b8">Req1 L1 → P2</text>
+                <text x="280" y="130" class="viz-label sm" fill="#e2875a">Req2 L0 → P5</text>
 
                 <!-- Physical Memory -->
-                <text x="420" y="30" class="viz-label">Physical Memory</text>
-                <rect x="320" y="50" width="200" height="155" class="mem-empty" />
+                <rect x="420" y="20" width="120" height="170" class="viz-chip" />
+                <text x="480" y="40" class="viz-label">Physical Cache</text>
                 
-                <rect x="330" y="60" width="180" height="40" class="mem-shared viz-node" />
-                <text x="420" y="85" class="viz-label sm">Physical Prompt Blocks (Ref: 2)</text>
+                <rect x="430" y="55" width="100" height="25" class="viz-chip" />
+                <text x="480" y="72" class="viz-label sm">Phys 1 (Free)</text>
                 
-                <rect x="330" y="110" width="80" height="30" class="mem-filled viz-node d2" />
-                <text x="370" y="130" class="viz-label sm">Output A</text>
+                <rect x="430" y="85" width="100" height="25" class="viz-chip teal viz-node" />
+                <text x="480" y="102" class="viz-label sm">Phys 2 (Req1-L1)</text>
                 
-                <rect x="430" y="110" width="80" height="30" class="mem-wasted viz-node d3" />
-                <text x="470" y="130" class="viz-label sm">Output B</text>
+                <rect x="430" y="115" width="100" height="25" class="viz-chip clay viz-node d2" />
+                <text x="480" y="132" class="viz-label sm">Phys 5 (Req2-L0)</text>
+                
+                <rect x="430" y="145" width="100" height="25" class="viz-chip teal viz-node d3" />
+                <text x="480" y="162" class="viz-label sm">Phys 7 (Req1-L0)</text>
 
-                <!-- Flow Lines -->
-                <path d="M240 62 L330 80" class="viz-flow green" />
-                <path d="M240 162 L330 80" class="viz-flow green" />
+                <!-- Animation Paths -->
+                <path id="p1" d="M140 65 C 180 65 180 80 220 80" class="viz-edge" />
+                <path d="M140 65 C 180 65 180 80 220 80" class="viz-flow teal" />
+                <circle r="4" class="viz-dot teal"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#p1"/></animateMotion></circle>
+
+                <path id="p2" d="M140 145 C 180 145 180 130 220 130" class="viz-edge" />
+                <path d="M140 145 C 180 145 180 130 220 130" class="viz-flow clay" />
+                <circle r="4" class="viz-dot clay"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#p2"/></animateMotion></circle>
+
+                <path id="p3" d="M340 70 L 430 157" class="viz-edge" />
+                <path d="M340 70 L 430 157" class="viz-flow teal" />
+                <circle r="4" class="viz-dot teal"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#p3"/></animateMotion></circle>
                 
-                <path d="M140 92 L330 125" class="viz-flow teal" />
-                <path d="M140 192 L430 125" class="viz-flow clay" />
+                <path id="p4" d="M340 90 L 430 97" class="viz-edge" />
+                <path d="M340 90 L 430 97" class="viz-flow teal" />
+                <circle r="4" class="viz-dot teal d2"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#p4"/></animateMotion></circle>
+
+                <path id="p5" d="M340 130 L 430 127" class="viz-edge" />
+                <path d="M340 130 L 430 127" class="viz-flow clay" />
+                <circle r="4" class="viz-dot clay d3"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#p5"/></animateMotion></circle>
               </svg>
-              <figcaption>Multiple logical sequences map their shared prompt blocks to the same physical memory, drastically reducing memory overhead.</figcaption>
+              <figcaption>Logical tokens map through the Block Table to scattered Physical GPU memory. Animated dots show the resolution path.</figcaption>
             </figure>
+
+            <p><strong>Step 2: Autoregressive Generation</strong></p>
+            <p>
+              As the model generates tokens, they are written to the last block of their respective sequence.
+            </p>
+            <ul>
+              <li>Request 2 generates "about" (Token 4). It is placed in <code>Phys 5</code>. <code>Phys 5</code> is now FULL (4 tokens).</li>
+              <li>Request 2 generates "space" (Token 5). The <code>BlockAllocator</code> kicks in. It pulls a new free physical block (e.g., <code>Phys 1</code>), maps it to Logical Block 1 for Request 2, and writes the token there.</li>
+            </ul>
+
+            <h2>Modeling the Block Allocator in Python</h2>
+            <p>
+              To make this concrete, here is a simplified Python model of how the system manages this dynamic allocation on the CPU side before issuing GPU kernels.
+            </p>
+
+            <div class="code-block">
+              <code><span class="kw">class</span> BlockAllocator:
+    <span class="kw">def</span> <span class="acc">__init__</span>(self, total_vram, block_size_bytes):
+        <span class="cm"># Initialize pool of free physical block indices</span>
+        num_blocks = total_vram // block_size_bytes
+        self.free_blocks = <span class="kw">list</span>(<span class="kw">range</span>(num_blocks))
+        self.tokens_per_block = 16
+        
+    <span class="kw">def</span> <span class="acc">allocate_block</span>(self):
+        <span class="kw">if not</span> self.free_blocks:
+            <span class="kw">raise</span> MemoryError(<span class="str">"KV Cache is completely full!"</span>)
+        <span class="kw">return</span> self.free_blocks.pop(0)
+        
+    <span class="kw">def</span> <span class="acc">free_block</span>(self, physical_idx):
+        self.free_blocks.append(physical_idx)
+
+<span class="kw">class</span> Sequence:
+    <span class="kw">def</span> <span class="acc">__init__</span>(self, prompt_tokens, allocator):
+        self.logical_to_physical = []  <span class="cm"># The Block Table</span>
+        self.num_tokens = 0
+        self.allocator = allocator
+        
+        <span class="cm"># Process initial prompt</span>
+        <span class="kw">for</span> token <span class="kw">in</span> prompt_tokens:
+            self.append_token(token)
             
+    <span class="kw">def</span> <span class="acc">append_token</span>(self, token):
+        <span class="cm"># Check if we need a new block</span>
+        <span class="kw">if</span> self.num_tokens % self.allocator.tokens_per_block == 0:
+            new_phys_block = self.allocator.allocate_block()
+            self.logical_to_physical.append(new_phys_block)
+            
+        <span class="cm"># Logically append the token</span>
+        self.num_tokens += 1
+        
+        <span class="cm"># In reality, a kernel is launched here to write the KV tensors</span>
+        <span class="cm"># to GPU memory at physical address: new_phys_block * block_size</span></code>
+            </div>
+
+            <h2>The Superpower: Memory Sharing & Copy-on-Write</h2>
+            <p>
+              Once you have a page table, you unlock the ability for multiple logical blocks to point to the <em>exact same</em> physical block. This is identical to memory sharing in operating systems.
+            </p>
+            <p>
+              In scenarios like <strong>Beam Search</strong>, <strong>Parallel Decoding</strong>, or handling multiple users with the same large system prompt, you can share the KV cache for the prompt across all requests. The physical memory stores the prompt once. The block table for Sequence A and Sequence B both point to those same physical blocks.
+            </p>
+            <p>
+              They only diverge when the generated output differs. At that moment, a "Copy-on-Write" mechanism allocates a new physical block for the diverging sequence.
+            </p>
+
+            <figure class="demo reveal">
+              <svg viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shared Logical Prompts -->
+                <rect x="20" y="40" width="160" height="30" class="viz-chip gold" />
+                <text x="100" y="60" class="viz-label sm">Seq A: System Prompt</text>
+                
+                <rect x="20" y="80" width="90" height="30" class="viz-chip teal" />
+                <text x="65" y="100" class="viz-label sm">Seq A: Output</text>
+                
+                <rect x="20" y="140" width="160" height="30" class="viz-chip gold" />
+                <text x="100" y="160" class="viz-label sm">Seq B: System Prompt</text>
+                
+                <rect x="20" y="180" width="90" height="30" class="viz-chip clay" />
+                <text x="65" y="200" class="viz-label sm">Seq B: Output</text>
+
+                <!-- Block Table logic -->
+                <text x="280" y="25" class="viz-label">Block Table</text>
+                <path d="M190 55 C 230 55 240 115 280 115" class="viz-edge" />
+                <path id="s1" d="M190 55 C 230 55 240 115 280 115" class="viz-flow gold" />
+                <circle r="4" class="viz-dot gold"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#s1"/></animateMotion></circle>
+
+                <path d="M190 155 C 230 155 240 115 280 115" class="viz-edge" />
+                <path id="s2" d="M190 155 C 230 155 240 115 280 115" class="viz-flow gold" />
+                <circle r="4" class="viz-dot gold d2"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#s2"/></animateMotion></circle>
+
+                <path d="M120 95 C 160 95 240 70 280 70" class="viz-edge" />
+                <path id="s3" d="M120 95 C 160 95 240 70 280 70" class="viz-flow teal" />
+                <circle r="4" class="viz-dot teal d3"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#s3"/></animateMotion></circle>
+
+                <path d="M120 195 C 160 195 240 170 280 170" class="viz-edge" />
+                <path id="s4" d="M120 195 C 160 195 240 170 280 170" class="viz-flow clay" />
+                <circle r="4" class="viz-dot clay"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#s4"/></animateMotion></circle>
+
+                <!-- Physical Memory -->
+                <rect x="380" y="20" width="160" height="200" class="viz-chip" />
+                <text x="460" y="40" class="viz-label">Physical Cache</text>
+                
+                <rect x="400" y="60" width="120" height="30" class="viz-chip teal viz-node" />
+                <text x="460" y="79" class="viz-label sm">Output A</text>
+                
+                <rect x="400" y="100" width="120" height="30" class="viz-chip gold viz-node slow" />
+                <text x="460" y="115" class="viz-label sm">Shared Prompt</text>
+                <text x="460" y="127" class="viz-label sm" fill="#e8bb6c">Ref Count: 2</text>
+                
+                <rect x="400" y="160" width="120" height="30" class="viz-chip clay viz-node d3" />
+                <text x="460" y="179" class="viz-label sm">Output B</text>
+
+                <path d="M280 115 L 390 115" class="viz-edge" />
+                <path d="M280 70 L 390 70" class="viz-edge" />
+                <path d="M280 170 L 390 170" class="viz-edge" />
+              </svg>
+              <figcaption>Memory Sharing: Both Seq A and Seq B map their system prompt logical blocks to the exact same physical blocks, cutting prompt memory usage in half.</figcaption>
+            </figure>
+
             <h2>Conclusion</h2>
             <p>
               By treating the LLM KV cache like an operating system treats RAM, PagedAttention enables models to serve significantly larger batches of requests concurrently. It practically eliminates memory waste and turns complex sampling methods (like beam search) from memory-hogs into highly efficient operations.
             </p>
-
           </div>
         </article>
       </div>
