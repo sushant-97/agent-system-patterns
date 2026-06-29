@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Git Worktrees for Parallel AI Agents — Agent System Patterns</title>
+    <meta
+      name="description"
+      content="How git worktrees give each AI agent its own isolated working directory while sharing a single object store — the mechanics, the shell workflow, and what worktrees don't solve."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      /* ---- Diagram styles (scoped) ---- */
+      .demo {
+        margin: clamp(26px, 4vw, 42px) 0 0;
+        padding: clamp(16px, 3vw, 28px);
+        border: 1px solid rgba(25, 23, 18, 0.24);
+        border-radius: var(--r-lg);
+        background: radial-gradient(130% 130% at 18% 0%, #251d15, #15110c 72%);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .demo svg { width: 100%; height: auto; display: block; }
+      .demo figcaption {
+        margin-top: 14px;
+        text-align: center;
+        font-size: 12.5px;
+        color: rgba(243, 230, 214, 0.5);
+      }
+
+      /* Shared animation classes */
+      .viz-node { transform-box: fill-box; transform-origin: center; animation: vizPulse 2.6s ease-in-out infinite; }
+      .viz-node.d2 { animation-delay: 0.65s; }
+      .viz-node.d3 { animation-delay: 1.3s; }
+      .viz-node.d4 { animation-delay: 1.95s; }
+      .viz-node.slow { animation-duration: 3.8s; }
+
+      .viz-edge { stroke: rgba(243, 230, 214, 0.13); stroke-width: 1.3; fill: none; }
+      .viz-flow { fill: none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 3 11; animation: vizDash 1.2s linear infinite; }
+      .viz-flow.clay  { stroke: #e2875a; filter: drop-shadow(0 0 4px rgba(226,135,90,0.55)); }
+      .viz-flow.teal  { stroke: #57b8b8; filter: drop-shadow(0 0 4px rgba(87,184,184,0.5)); }
+      .viz-flow.gold  { stroke: #e8bb6c; filter: drop-shadow(0 0 4px rgba(232,187,108,0.5)); }
+      .viz-flow.green { stroke: #6db375; filter: drop-shadow(0 0 4px rgba(109,179,117,0.5)); }
+      .viz-flow.slow  { animation-duration: 1.8s; }
+      .viz-flow.d2    { animation-delay: 0.4s; }
+      .viz-flow.d3    { animation-delay: 0.8s; }
+
+      .viz-dot { offset-distance: 0%; animation: vizMove 3s cubic-bezier(0.5,0,0.5,1) infinite; filter: drop-shadow(0 0 5px rgba(232,187,108,0.85)); }
+      .viz-dot.d2 { animation-delay: 1s; }
+      .viz-dot.d3 { animation-delay: 2s; }
+      .viz-dot.clay { filter: drop-shadow(0 0 5px rgba(226,135,90,0.85)); }
+      .viz-dot.teal { filter: drop-shadow(0 0 5px rgba(87,184,184,0.85)); }
+      .viz-dot.green { filter: drop-shadow(0 0 5px rgba(109,179,117,0.85)); }
+
+      .viz-curve { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 800; stroke-dashoffset: 800; animation: vizTrace 4.5s ease-in-out infinite; }
+      .viz-curve.clay  { stroke: #e2875a; filter: drop-shadow(0 0 5px rgba(226,135,90,0.4)); }
+      .viz-curve.teal  { stroke: #57b8b8; filter: drop-shadow(0 0 5px rgba(87,184,184,0.4)); }
+      .viz-curve.green { stroke: #6db375; filter: drop-shadow(0 0 5px rgba(109,179,117,0.4)); }
+      .viz-curve.d2    { animation-delay: 0.5s; }
+      .viz-curve.d3    { animation-delay: 1s; }
+
+      .viz-label { fill: rgba(243, 230, 214, 0.88); font-family: var(--mono); font-size: 12.5px; text-anchor: middle; }
+      .viz-label.sm { font-size: 10.5px; fill: rgba(243, 230, 214, 0.58); }
+      .viz-label.left { text-anchor: start; }
+      .viz-label.right { text-anchor: end; }
+      .viz-chip { fill: rgba(243, 230, 214, 0.05); stroke: rgba(243, 230, 214, 0.2); }
+      .viz-chip.clay { fill: rgba(226,135,90,0.1); stroke: rgba(226,135,90,0.35); }
+      .viz-chip.teal { fill: rgba(87,184,184,0.1); stroke: rgba(87,184,184,0.35); }
+      .viz-chip.green { fill: rgba(109,179,117,0.1); stroke: rgba(109,179,117,0.35); }
+      .viz-chip.gold  { fill: rgba(232,187,108,0.1); stroke: rgba(232,187,108,0.45); }
+
+      /* Code blocks */
+      .code-block {
+        background: #111009;
+        border: 1px solid rgba(243, 230, 214, 0.1);
+        border-radius: var(--r);
+        padding: 20px 24px;
+        overflow-x: auto;
+        margin: clamp(20px, 3vw, 32px) 0 0;
+      }
+      .code-block code {
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.75;
+        color: rgba(243, 230, 214, 0.9);
+        display: block;
+        white-space: pre;
+      }
+      .code-block .cm  { color: rgba(243, 230, 214, 0.35); }
+      .code-block .kw  { color: #e8bb6c; }
+      .code-block .str { color: #57b8b8; }
+      .code-block .acc { color: #e2875a; }
+      .code-block .dim { color: rgba(243, 230, 214, 0.45); }
+
+      /* Comparison table */
+      .compare { margin: clamp(24px,4vw,36px) 0 0; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+      .compare-row { display: grid; grid-template-columns: 1.1fr 1fr 1fr; }
+      .compare-row + .compare-row { border-top: 1px solid var(--line); }
+      .compare-row > * { padding: 14px 18px; font-size: 14.5px; line-height: 1.55; margin: 0; }
+      .compare-head > * { font-size: 10.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-deep); background: var(--surface-2); }
+      .compare-row p { color: var(--read); }
+      .compare-row strong { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); }
+      .compare-row span { color: var(--muted); font-size: 13.5px; }
+      .good { color: var(--green) !important; }
+      .bad  { color: var(--accent) !important; }
+
+      @keyframes vizPulse { 0%, 100% { transform: scale(0.82); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
+      @keyframes vizDash  { to { stroke-dashoffset: -14; } }
+      @keyframes vizMove  { 0% { offset-distance: 0%; } 80% { offset-distance: 100%; } 100% { offset-distance: 100%; } }
+      @keyframes vizTrace { 0% { stroke-dashoffset: 800; } 65% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+
+      @media (max-width: 600px) {
+        .compare-row { grid-template-columns: 1fr; }
+        .compare-row > * { padding: 10px 14px; }
+        .compare-row > * + * { border-top: 1px solid var(--line); }
+        .compare-head { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .demo * { animation: none !important; }
+        .viz-curve { stroke-dashoffset: 0; }
+        .viz-flow { stroke-dasharray: none; opacity: 0.7; }
+      }
+    </style>
+  </head>
+  <body class="site-body">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">Engineering notes</p>
+        <a class="brand-link" href="../index.html">agent-system-patterns</a>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="../index.html">All notes</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns">GitHub</a>
+      </nav>
+    </header>
+
+    <main class="article-page">
+      <div class="article-wrap">
+        <aside class="article-rail" aria-label="Share this note">
+          <a class="rail-btn" href="../index.html" aria-label="Back to all notes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+          </a>
+          <div class="rail-sep"></div>
+          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=Git%20Worktrees%20for%20Parallel%20AI%20Agents&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fgit-worktrees-parallel-agents.html" target="_blank" rel="noopener" aria-label="Share on X">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+          </a>
+          <a class="rail-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fgit-worktrees-parallel-agents.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+          </a>
+        </aside>
+
+        <article class="article">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="sep">/</span>
+            <a href="../index.html#posts">Posts</a>
+            <span class="sep">/</span>
+            <span class="current">Git Worktrees for Parallel AI Agents</span>
+          </nav>
+
+          <h1 class="article-title">One repo. Many agents. <span class="grad">Zero conflicts.</span></h1>
+          <p class="article-subtitle">Agent System Patterns · Engineering</p>
+
+          <div class="article-byline">
+            <div class="byline-id">
+              <span class="avatar">SP</span>
+              <div class="byline-meta">
+                <span class="byline-name">Sushant Pargaonkar</span>
+                <span class="byline-date">June 2026 · 11 min read</span>
+              </div>
+            </div>
+            <div class="byline-share">
+              <a class="share-btn" href="https://twitter.com/intent/tweet?text=Git%20Worktrees%20for%20Parallel%20AI%20Agents&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fgit-worktrees-parallel-agents.html" target="_blank" rel="noopener" aria-label="Share on X">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fgit-worktrees-parallel-agents.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="View on GitHub">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.92c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="article-body">
+            <p class="article-lead">
+              You have three AI agents. Each one is good at its job. The moment you point all three at
+              the same working directory, they immediately start wrecking each other's work — overwriting
+              files, reading half-written state, producing diffs that conflict before you've reviewed
+              either. Git worktrees are the missing piece: a way to give every agent its own isolated
+              desk inside the same building, without duplicating the building.
+            </p>
+
+            <h2>The problem with one working directory</h2>
+            <p>
+              When multiple agents share a single directory, three things go wrong. The first is
+              <span class="verdict-lead">lost writes</span> — Agent A reads <code>auth/middleware.ts</code>,
+              thinks for a moment, then writes its changes back. Agent B read the same file slightly
+              earlier and overwrites A's version without ever seeing A's edits. Neither agent knows this
+              happened; both report success.
+            </p>
+            <p>
+              The second is <span class="verdict-lead">corrupted context</span>. An agent's reasoning
+              about a file is built on what that file said when the agent read it. If another agent
+              modifies it mid-task, the first agent is now reasononing about a file that no longer
+              exists in the form it was read. The conclusions it draws are about a ghost.
+            </p>
+            <p>
+              The third is <span class="verdict-lead">lock contention</span>. Git itself uses lock files
+              — <code>.git/index.lock</code>, <code>.git/COMMIT_EDITMSG</code> — to protect its own
+              state. Two agents both trying to stage files at the same moment will see errors. One agent
+              loses its commit. If you're not watching, it silently disappears.
+            </p>
+            <p>
+              The instinct is to reach for separate clones. Clone the repo three times, give each agent
+              a clone. This works but wastes everything: disk, fetch time, CI setup. A repo with 30,000
+              files takes roughly 1 GB per clone, and a fresh clone averages 90 seconds. With ten agents
+              you'd clone for 15 minutes and use 10 GB before any agent writes a single line. There's a
+              better primitive built into git itself.
+            </p>
+
+            <h2>What git worktrees actually are</h2>
+            <p>
+              A git repository and a working directory are not the same thing. The repository is the
+              <code>.git/</code> folder — the object store, the ref database, the config. The working
+              directory is just a view into that data: checked-out files you can read and edit. One
+              repository can serve any number of working directories simultaneously. That's a worktree.
+            </p>
+            <p>
+              Each linked worktree gets its own <strong>HEAD</strong> (its own current branch),
+              its own <strong>index</strong> (its own staging area), and its own working files on disk.
+              None of that is shared. What <em>is</em> shared is everything inside <code>.git/objects/</code>
+              — commits, trees, blobs, the entire history. This is why a worktree checkout takes about
+              20 seconds instead of 90: it reads from a local object store that's already fully populated.
+              It only writes out the working files.
+            </p>
+            <p>
+              The mechanism is a small indirection. Inside each linked worktree, the expected
+              <code>.git/</code> directory is replaced with a plain text file named <code>.git</code>
+              containing a single line: <code>gitdir: /path/to/repo/.git/worktrees/feature-auth</code>.
+              Git follows that pointer to find its data. The linked worktree's private state
+              (HEAD, index, reflog) lives in <code>.git/worktrees/feature-auth/</code> in the main repo.
+              Everything else — all objects, all refs under <code>refs/</code> — is shared from the
+              single object store in the main repo's <code>.git/</code>.
+            </p>
+
+            <!-- Diagram 1: Shared Object Store Architecture -->
+            <figure class="demo reveal" id="demo-object-store">
+              <svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Git shared object store diagram">
+                <!-- Object store: right side large box -->
+                <rect x="370" y="55" width="160" height="100" rx="10" class="viz-chip gold" />
+                <text x="450" y="94" class="viz-label">git/objects/</text>
+                <text x="450" y="112" class="viz-label sm">packed history</text>
+                <text x="450" y="128" class="viz-label sm">shared by all</text>
+
+                <!-- Worktrees: left column -->
+                <!-- main -->
+                <rect x="30" y="20" width="160" height="44" rx="8" class="viz-chip clay" />
+                <text x="110" y="40" class="viz-label">main/</text>
+                <text x="110" y="55" class="viz-label sm">.git (file pointer)</text>
+
+                <!-- feature-auth -->
+                <rect x="30" y="83" width="160" height="44" rx="8" class="viz-chip teal" />
+                <text x="110" y="103" class="viz-label">worktree-auth/</text>
+                <text x="110" y="118" class="viz-label sm">.git (file pointer)</text>
+
+                <!-- bugfix-payments -->
+                <rect x="30" y="146" width="160" height="44" rx="8" class="viz-chip green" />
+                <text x="110" y="166" class="viz-label">worktree-payments/</text>
+                <text x="110" y="181" class="viz-label sm">.git (file pointer)</text>
+
+                <!-- Edges (background) -->
+                <path d="M190 42 Q290 42 370 90" class="viz-edge" />
+                <path d="M190 105 L370 105" class="viz-edge" />
+                <path d="M190 168 Q290 168 370 122" class="viz-edge" />
+
+                <!-- Animated flow: clay -->
+                <path id="p1" d="M190 42 Q290 42 370 90" fill="none" />
+                <path d="M190 42 Q290 42 370 90" class="viz-flow clay" />
+                <circle r="4" fill="#e2875a" class="viz-dot clay">
+                  <animateMotion dur="2.2s" repeatCount="indefinite" begin="0s">
+                    <mpath href="#p1" />
+                  </animateMotion>
+                </circle>
+
+                <!-- Animated flow: teal -->
+                <path id="p2" d="M190 105 L370 105" fill="none" />
+                <path d="M190 105 L370 105" class="viz-flow teal d2" />
+                <circle r="4" fill="#57b8b8" class="viz-dot teal">
+                  <animateMotion dur="2.2s" repeatCount="indefinite" begin="0.75s">
+                    <mpath href="#p2" />
+                  </animateMotion>
+                </circle>
+
+                <!-- Animated flow: green -->
+                <path id="p3" d="M190 168 Q290 168 370 122" fill="none" />
+                <path d="M190 168 Q290 168 370 122" class="viz-flow green d3" />
+                <circle r="4" fill="#6db375" class="viz-dot green">
+                  <animateMotion dur="2.2s" repeatCount="indefinite" begin="1.5s">
+                    <mpath href="#p3" />
+                  </animateMotion>
+                </circle>
+
+                <!-- Pulsing glow on object store -->
+                <circle cx="450" cy="105" r="46" fill="rgba(232,187,108,0.06)" class="viz-node slow" />
+
+                <!-- Storage labels -->
+                <text x="110" y="205" class="viz-label sm">~150 MB each (working files only)</text>
+                <text x="450" y="195" class="viz-label sm">shared · 4.7 GB</text>
+              </svg>
+              <figcaption>All three worktrees share one object store. Each adds only the size of its checked-out files — no duplicated history.</figcaption>
+            </figure>
+
+            <h2>The commands you actually need</h2>
+            <p>
+              The git worktree API is small. Creating a worktree requires two things: a path for the
+              new working directory, and a branch to check out there. If the branch doesn't exist yet,
+              <code>-b</code> creates it:
+            </p>
+
+            <div class="code-block">
+              <code><span class="cm"># Create a new worktree on a new branch</span>
+git worktree add <span class="acc">../my-repo-auth</span> <span class="kw">-b</span> <span class="str">feature/auth</span>
+
+<span class="cm"># Create a worktree for an existing branch</span>
+git worktree add <span class="acc">../my-repo-hotfix</span> <span class="str">hotfix/null-check</span>
+
+<span class="cm"># See all active worktrees</span>
+git worktree list
+
+<span class="cm"># Remove a worktree (also deletes the directory)</span>
+git worktree remove <span class="acc">../my-repo-auth</span>
+
+<span class="cm"># Clean up stale worktree registrations (after manual dir deletion)</span>
+git worktree prune</code>
+            </div>
+
+            <p>
+              By convention, many teams keep all worktrees as siblings of the main checkout, with a
+              shared parent directory. A common layout looks like this:
+            </p>
+
+            <div class="code-block">
+              <code><span class="dim">~/projects/</span>
+  <span class="str">my-repo/</span>          <span class="cm"># main checkout (.git/ lives here)</span>
+  <span class="acc">my-repo-auth/</span>     <span class="cm"># worktree: feature/auth</span>
+  <span class="acc">my-repo-payments/</span> <span class="cm"># worktree: feature/payments</span>
+  <span class="acc">my-repo-tests/</span>    <span class="cm"># worktree: chore/test-suite</span></code>
+            </div>
+
+            <p>
+              A thin shell function makes the pattern easy to repeat. This one creates a worktree,
+              copies the <code>.env</code> file, installs dependencies, and opens the directory:
+            </p>
+
+            <div class="code-block">
+              <code><span class="kw">function</span> <span class="acc">wt-new</span>() {
+  <span class="kw">local</span> name=<span class="str">"$1"</span>
+  <span class="kw">local</span> branch=<span class="str">"feature/$name"</span>
+  <span class="kw">local</span> dir=<span class="str">"../$(basename $(pwd))-$name"</span>
+
+  git worktree add <span class="str">"$dir"</span> <span class="kw">-b</span> <span class="str">"$branch"</span>
+
+  <span class="cm"># Copy environment config</span>
+  cp .env <span class="str">"$dir/.env"</span> 2>/dev/null || true
+
+  <span class="cm"># Install deps in the new tree</span>
+  (cd <span class="str">"$dir"</span> && npm install --silent)
+
+  echo <span class="str">"Worktree ready at $dir on branch $branch"</span>
+}
+
+<span class="cm"># Usage:</span>
+<span class="acc">wt-new</span> <span class="str">auth</span>      <span class="cm"># → ../my-repo-auth on feature/auth</span>
+<span class="acc">wt-new</span> <span class="str">payments</span>  <span class="cm"># → ../my-repo-payments on feature/payments</span></code>
+            </div>
+
+            <h2>The parallel agent pattern</h2>
+            <p>
+              Once worktrees exist, the canonical pattern for parallel agent execution follows three
+              phases: decompose, dispatch, and promote.
+            </p>
+            <p>
+              <span class="verdict-lead">Decompose.</span> An orchestrator (which may itself be an agent,
+              a script, or a human) breaks the overall task into units that touch non-overlapping parts
+              of the codebase. The decomposition rule is strict: if two units would modify the same file,
+              they must be executed sequentially — not in parallel. Units that touch completely separate
+              modules, directories, or concerns can run in parallel.
+            </p>
+            <p>
+              <span class="verdict-lead">Dispatch.</span> The orchestrator provisions one worktree per
+              unit, starts one agent per worktree, and passes each agent its task and the path to its
+              working directory. The agents work independently. Agent A never reads from Agent B's
+              directory; it only reads from its own. All shared history is still accessible through the
+              common object store — agents can inspect old commits, read tags, check history — but they
+              never touch each other's in-progress files.
+            </p>
+            <p>
+              <span class="verdict-lead">Promote.</span> When each agent completes, the orchestrator
+              reviews its diff — <code>git diff main..feature/auth</code> — and decides whether to
+              merge, rebase, or discard. Because each worktree is a regular git branch, merging is just
+              a merge. There's no special protocol. The branch from one worktree is visible in every
+              other worktree immediately, because they share the same object store.
+            </p>
+
+            <!-- Diagram 2: Orchestrator Fan-out -->
+            <figure class="demo reveal" id="demo-fanout">
+              <svg viewBox="0 0 560 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Orchestrator fan-out to parallel worktrees">
+                <!-- Orchestrator node (top center) -->
+                <rect x="195" y="16" width="170" height="46" rx="10" class="viz-chip gold" />
+                <text x="280" y="37" class="viz-label">Orchestrator</text>
+                <text x="280" y="53" class="viz-label sm">decomposes task</text>
+
+                <!-- Vertical stem -->
+                <line x1="280" y1="62" x2="280" y2="88" class="viz-edge" />
+                <path d="M280 62 L280 88" class="viz-flow gold slow" />
+
+                <!-- Horizontal bar -->
+                <line x1="95" y1="88" x2="465" y2="88" class="viz-edge" />
+
+                <!-- Three drops -->
+                <line x1="95" y1="88" x2="95" y2="118" class="viz-edge" />
+                <line x1="280" y1="88" x2="280" y2="118" class="viz-edge" />
+                <line x1="465" y1="88" x2="465" y2="118" class="viz-edge" />
+
+                <!-- Flow on drops -->
+                <path d="M95 88 L95 118" class="viz-flow clay" />
+                <path d="M280 88 L280 118" class="viz-flow teal d2" />
+                <path d="M465 88 L465 118" class="viz-flow green d3" />
+
+                <!-- Task chips -->
+                <rect x="22" y="118" width="148" height="42" rx="8" class="viz-chip clay" />
+                <text x="96" y="136" class="viz-label">Task A</text>
+                <text x="96" y="151" class="viz-label sm">auth module</text>
+
+                <rect x="206" y="118" width="148" height="42" rx="8" class="viz-chip teal" />
+                <text x="280" y="136" class="viz-label">Task B</text>
+                <text x="280" y="151" class="viz-label sm">payment refactor</text>
+
+                <rect x="391" y="118" width="148" height="42" rx="8" class="viz-chip green" />
+                <text x="465" y="136" class="viz-label">Task C</text>
+                <text x="465" y="151" class="viz-label sm">test suite update</text>
+
+                <!-- Drops to worktrees -->
+                <line x1="96" y1="160" x2="96" y2="185" class="viz-edge" />
+                <line x1="280" y1="160" x2="280" y2="185" class="viz-edge" />
+                <line x1="465" y1="160" x2="465" y2="185" class="viz-edge" />
+
+                <path d="M96 160 L96 185" class="viz-flow clay slow" />
+                <path d="M280 160 L280 185" class="viz-flow teal slow d2" />
+                <path d="M465 160 L465 185" class="viz-flow green slow d3" />
+
+                <!-- Worktree labels -->
+                <text x="96" y="202" class="viz-label sm">worktree-auth/</text>
+                <text x="280" y="202" class="viz-label sm">worktree-payments/</text>
+                <text x="465" y="202" class="viz-label sm">worktree-tests/</text>
+
+                <!-- Branch tag dots -->
+                <circle cx="96" cy="187" r="5" fill="#e2875a" opacity="0.9" />
+                <circle cx="280" cy="187" r="5" fill="#57b8b8" opacity="0.9" />
+                <circle cx="465" cy="187" r="5" fill="#6db375" opacity="0.9" />
+              </svg>
+              <figcaption>Each task gets its own branch and worktree. Agents run in parallel with zero filesystem overlap.</figcaption>
+            </figure>
+
+            <h2>Claude Code's native worktree support</h2>
+            <p>
+              Claude Code added built-in worktree management in 2025. The <code>--worktree</code> flag
+              (also <code>-w</code>) does the full setup in one command: creates a worktree at
+              <code>.claude/worktrees/&lt;name&gt;</code>, checks out a new branch named
+              <code>worktree-&lt;name&gt;</code>, and starts the Claude session with its working
+              directory pointed at that path:
+            </p>
+
+            <div class="code-block">
+              <code><span class="cm"># Start a Claude session in an isolated worktree</span>
+claude <span class="kw">--worktree</span> <span class="str">feature-auth</span>
+
+<span class="cm"># Two agents, two terminals, zero conflicts</span>
+claude <span class="kw">--worktree</span> <span class="str">feature-auth</span>       <span class="cm"># terminal 1</span>
+claude <span class="kw">--worktree</span> <span class="str">bugfix-payments</span>   <span class="cm"># terminal 2</span>
+
+<span class="cm"># Auto-named worktree (UUID suffix)</span>
+claude <span class="kw">--worktree</span></code>
+            </div>
+
+            <p>
+              For automated pipelines where an orchestrator Claude spawns subagents, each subagent can
+              request its own worktree via a frontmatter directive. The orchestrator provisions a fresh
+              worktree before the subagent starts and auto-cleans it when done:
+            </p>
+
+            <div class="code-block">
+              <code><span class="cm"># In a subagent definition file:</span>
+<span class="dim">---</span>
+<span class="kw">name</span>: <span class="str">auth-agent</span>
+<span class="kw">description</span>: <span class="str">Implement authentication module</span>
+<span class="kw">isolation</span>: <span class="acc">worktree</span>   <span class="cm"># ← provisions a fresh worktree automatically</span>
+<span class="dim">---</span>
+
+Implement the OAuth2 flow in src/auth/. Add refresh token support.
+Follow the existing patterns in src/users/.</code>
+            </div>
+
+            <p>
+              Cleanup is automatic for subagent worktrees that have no uncommitted changes, no untracked
+              files, and no unpushed commits — they're swept after <code>cleanupPeriodDays</code>
+              (default: 7). Worktrees you create directly with <code>--worktree</code> are never
+              auto-removed, since the assumption is you want to review the branch before deciding.
+            </p>
+
+            <h2>What worktrees don't solve</h2>
+            <p>
+              Worktrees are a file-system isolation primitive. They're excellent at what they do, and
+              they're not the whole picture. A common misconception is that worktrees eliminate all
+              parallelism problems. They eliminate all <em>file-level</em> conflicts. Runtime conflicts
+              remain.
+            </p>
+            <p>
+              <span class="verdict-lead">Port collisions.</span> Two agents that each spin up a
+              development server both try to bind port 3000 by default. The second agent fails at
+              startup or silently connects to the first agent's server. The fix is to assign each
+              worktree a port offset based on its index: Agent 0 uses ports 3000–3009, Agent 1 uses
+              3010–3019, and so on. Set this in the environment before starting each agent:
+            </p>
+
+            <div class="code-block">
+              <code><span class="cm"># Derive port offset from worktree index</span>
+<span class="kw">export</span> <span class="str">PORT</span>=$((3000 + WORKTREE_INDEX * 10))
+<span class="kw">export</span> <span class="str">API_PORT</span>=$((4000 + WORKTREE_INDEX * 10))
+
+<span class="cm"># Pass to the agent environment</span>
+WORKTREE_INDEX=<span class="acc">1</span> claude <span class="kw">--worktree</span> <span class="str">feature-auth</span></code>
+            </div>
+
+            <p>
+              <span class="verdict-lead">Database state.</span> Two agents seeding or migrating the
+              same test database will corrupt each other's data. The cleanest solution at the
+              integration-test level is per-worktree SQLite databases (file path includes the worktree
+              name). For shared PostgreSQL or MySQL instances, prefix test schemas or databases with the
+              worktree name: <code>test_auth_wt1</code>, <code>test_payments_wt2</code>. In CI,
+              containerized databases per agent are cleaner.
+            </p>
+            <p>
+              <span class="verdict-lead">Shared caches and secrets.</span> Package managers cache
+              globally by default. Two agents running <code>npm install</code> simultaneously on the
+              same machine can corrupt the npm cache. Point each worktree at its own cache directory,
+              or accept the race and retry. Secrets (<code>.env</code> files) need to be copied into
+              each worktree directory at setup time — they're not shared by default, which is a
+              feature: each worktree gets its own copy you can modify for per-task configuration.
+            </p>
+            <p>
+              For heavy parallelism — ten or more concurrent agents — the reliable answer is container
+              isolation: each agent in its own Docker namespace with its own network stack, its own
+              database container, its own port space. Git worktrees can still be used inside the shared
+              object store mounted into each container; the isolation layers compose.
+            </p>
+
+            <!-- Diagram 3: Merge and Promote Flow -->
+            <figure class="demo reveal" id="demo-merge">
+              <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Branch merge and promote flow">
+
+                <!-- Main branch (bottom, spans full width) -->
+                <line x1="30" y1="155" x2="530" y2="155" class="viz-edge" stroke-width="2" stroke="rgba(243,230,214,0.22)" />
+                <path d="M30 155 L530 155" class="viz-flow gold slow" />
+                <text x="30" y="172" class="viz-label sm left">main</text>
+
+                <!-- Feature branch 1 (clay) -->
+                <path d="M80 155 Q80 105 120 85 L310 85" fill="none" class="viz-edge" />
+                <path d="M80 155 Q80 105 120 85 L310 85" class="viz-flow clay slow" />
+                <text x="140" y="78" class="viz-label sm left" fill="#e2875a">feature/auth</text>
+
+                <!-- Feature branch 2 (teal) -->
+                <path d="M120 155 Q120 60 160 45 L310 45" fill="none" class="viz-edge" />
+                <path d="M120 155 Q120 60 160 45 L310 45" class="viz-flow teal slow d2" />
+                <text x="180" y="38" class="viz-label sm left" fill="#57b8b8">feature/payments</text>
+
+                <!-- Feature branch 3 (green) -->
+                <path d="M100 155 Q100 130 140 118 L310 118" fill="none" class="viz-edge" />
+                <path d="M100 155 Q100 130 140 118 L310 118" class="viz-flow green slow d3" />
+                <text x="160" y="111" class="viz-label sm left" fill="#6db375">chore/tests</text>
+
+                <!-- Review gate (vertical bar) -->
+                <line x1="320" y1="30" x2="320" y2="165" stroke="rgba(243,230,214,0.3)" stroke-width="1.5" stroke-dasharray="4 4" />
+                <text x="320" y="22" class="viz-label sm" fill="rgba(243,230,214,0.5)">review gate</text>
+
+                <!-- Converging lines into main (after gate) -->
+                <path d="M320 85 Q380 85 420 155" fill="none" class="viz-edge" />
+                <path d="M320 45 Q390 45 420 155" fill="none" class="viz-edge" />
+                <path d="M320 118 Q370 118 420 155" fill="none" class="viz-edge" />
+
+                <path d="M320 85 Q380 85 420 155" class="viz-flow clay slow d2" />
+                <path d="M320 45 Q390 45 420 155" class="viz-flow teal slow d3" />
+                <path d="M320 118 Q370 118 420 155" class="viz-flow green slow" />
+
+                <!-- Merge dot on main -->
+                <circle cx="420" cy="155" r="7" fill="rgba(243,230,214,0.12)" stroke="rgba(232,187,108,0.6)" stroke-width="1.5" />
+                <circle cx="420" cy="155" r="3.5" fill="#e8bb6c" class="viz-node slow" />
+                <text x="420" y="175" class="viz-label sm">merge</text>
+
+                <!-- Start dots on main -->
+                <circle cx="80" cy="155" r="4" fill="#e2875a" opacity="0.8" />
+                <circle cx="120" cy="155" r="4" fill="#57b8b8" opacity="0.8" />
+                <circle cx="100" cy="155" r="4" fill="#6db375" opacity="0.8" />
+              </svg>
+              <figcaption>Each feature branch is a regular git branch. After review, all three converge back to main through a single merge point.</figcaption>
+            </figure>
+
+            <h2>Task decomposition that actually works</h2>
+            <p>
+              The decomposition step is where most parallel agent setups fail. People underestimate how
+              often "separate" features share the same files. The rule is simple but requires honest
+              analysis: <span class="verdict-lead">if two tasks would touch the same file, they must
+              run sequentially, not in parallel.</span>
+            </p>
+            <p>
+              Good parallel decomposition looks like domain separation. Authentication and payment processing
+              live in different directories and rarely share files beyond the user model. A test suite
+              update and a documentation pass are completely disjoint. Frontend component work and
+              backend API changes touch different layers. These are safe to parallelize.
+            </p>
+            <p>
+              Bad parallel decomposition looks like feature-plus-refactor. "Agent A adds the new
+              feature while Agent B refactors the shared utilities" always collides. Agent A is building
+              on the utilities as they exist now; Agent B is removing or renaming them. When both
+              branches try to merge, one of them will have built on a foundation that no longer exists.
+            </p>
+            <p>
+              A practical pattern for larger teams is a shared task document — a markdown file committed
+              to the repo — that the orchestrator writes before agents start. Each entry has a task,
+              a status field (<code>queued / in-progress / done</code>), and a list of files it will
+              touch. An agent picks a task by atomically updating its status, then only reads and writes
+              the files listed for its task. This makes the dependency graph explicit and catchable:
+              before any task runs, a simple overlap check across the file lists finds conflicts before
+              they happen.
+            </p>
+
+            <div class="compare">
+              <div class="compare-row compare-head">
+                <p>Scenario</p>
+                <p>Parallel?</p>
+                <p>Why</p>
+              </div>
+              <div class="compare-row">
+                <p><strong>src/auth/</strong> + <strong>src/payments/</strong></p>
+                <p><span class="good">✓ Yes</span></p>
+                <p><span>Different directories, no shared files</span></p>
+              </div>
+              <div class="compare-row">
+                <p><strong>Frontend feature</strong> + <strong>Backend API</strong></p>
+                <p><span class="good">✓ Yes</span></p>
+                <p><span>Different layers; API contract is fixed upfront</span></p>
+              </div>
+              <div class="compare-row">
+                <p><strong>Add feature</strong> + <strong>Write tests for same feature</strong></p>
+                <p><span class="bad">✗ No</span></p>
+                <p><span>Tests import the code being written; ordering matters</span></p>
+              </div>
+              <div class="compare-row">
+                <p><strong>New feature</strong> + <strong>Refactor shared utils</strong></p>
+                <p><span class="bad">✗ No</span></p>
+                <p><span>Feature builds on utils that are being changed underneath it</span></p>
+              </div>
+              <div class="compare-row">
+                <p><strong>Docs update</strong> + <strong>UI component work</strong></p>
+                <p><span class="good">✓ Yes</span></p>
+                <p><span>Completely disjoint file sets</span></p>
+              </div>
+              <div class="compare-row">
+                <p><strong>Two agents, same migration file</strong></p>
+                <p><span class="bad">✗ No</span></p>
+                <p><span>Both write migration timestamps; one will collide</span></p>
+              </div>
+            </div>
+
+            <h2>Merging and reviewing agent output</h2>
+            <p>
+              Because each worktree is a regular branch, reviewing what an agent produced is just
+              a normal diff review. Before merging anything:
+            </p>
+
+            <div class="code-block">
+              <code><span class="cm"># Review everything an agent changed relative to main</span>
+git diff main..feature/auth
+
+<span class="cm"># Or see just the file list</span>
+git diff <span class="kw">--name-only</span> main..feature/auth
+
+<span class="cm"># Check the commits the agent made</span>
+git log main..feature/auth <span class="kw">--oneline</span>
+
+<span class="cm"># Merge when satisfied</span>
+git checkout main
+git merge feature/auth <span class="kw">--no-ff</span>
+
+<span class="cm"># Or rebase to keep history linear</span>
+git rebase main feature/auth
+git checkout main
+git merge feature/auth <span class="kw">--ff-only</span></code>
+            </div>
+
+            <p>
+              The <code>--no-ff</code> flag creates a merge commit that marks where the agent's work
+              entered main — useful for auditing. The rebase approach keeps a linear history at the
+              cost of rewriting the agent's commit hashes, which is fine for agent-produced work since
+              you're the reviewer, not a collaborator expecting stable refs.
+            </p>
+            <p>
+              If two agent branches both need to merge and they touch adjacent (but not identical) code,
+              you may hit a merge conflict. This is usually a signal that the decomposition was too
+              tight — the tasks were closer together than the file list suggested. Resolve it manually,
+              or feed the conflict back to an agent with explicit context about what both branches were
+              trying to do.
+            </p>
+
+            <h2>The performance case</h2>
+            <p>
+              The concrete numbers make the argument for worktrees over clones. For a representative
+              JavaScript monorepo with 30,000 files:
+            </p>
+            <ul>
+              <li><strong>Clone:</strong> ~90 seconds, ~1 GB disk per copy. Five agents = 7.5 minutes of setup, 5 GB disk.</li>
+              <li><strong>Worktree:</strong> ~20 seconds, ~150 MB disk per copy. Five agents = 1.5 minutes of setup, 750 MB disk.</li>
+            </ul>
+            <p>
+              For a large Go monorepo with ~200 MB of git objects, five clones would consume 1 GB of
+              history storage. Five worktrees share the same 200 MB. The object store is written once
+              and read by everyone.
+            </p>
+            <p>
+              Beyond setup time and disk, the performance argument is about wall-clock time on real
+              tasks. A 2025 case study running four parallel agents on a feature decomposed into four
+              domain-separated worktrees completed work that would have taken 30 hours sequentially in
+              8.4 hours. The agents worked at full speed with no coordination overhead because they
+              literally never saw each other's changes until the merge step.
+            </p>
+
+            <h2>The decision you have to make first</h2>
+            <p>
+              Git worktrees are not the thing that makes parallel agents useful. Good task decomposition
+              is the thing that makes parallel agents useful. Worktrees are what makes it safe to
+              actually run them. If you skip the decomposition analysis and hand two agents overlapping
+              tasks, worktrees will ensure their partial results don't corrupt each other on disk — but
+              you'll still end up with two branches that can't be merged without human intervention.
+            </p>
+            <p>
+              The right mental model: worktrees are isolation infrastructure, not a coordination
+              strategy. They buy you the ability to run things in parallel safely. What you run, in
+              what order, with what dependencies between tasks — that's still on you to design.
+              Do it well and the speedup is real. Skip it and you've just added complexity to a
+              sequential process.
+            </p>
+          </div>
+
+          <section class="article-cta">
+            <h2>See it in the repo</h2>
+            <p>The patterns in these notes ship with runnable code and checked-in experiments. Read the implementation and try it yourself.</p>
+            <a class="button" href="https://github.com/sushant-97/agent-system-patterns">Browse the code on GitHub</a>
+          </section>
+
+          <section class="article-related">
+            <p class="eyebrow">Read next</p>
+            <div class="related-grid">
+              <a href="reversible-sandbox-execution.html">
+                <span>Containment</span>
+                <strong>Reversible Sandbox Execution</strong>
+                <p>Run agent work in an isolated copy and promote only the diffs that prove safe.</p>
+              </a>
+              <a href="self-verification-loop.html">
+                <span>Verification</span>
+                <strong>Self-Verification Loop</strong>
+                <p>Don't trust output that merely looks finished — run the behavior and check the evidence.</p>
+              </a>
+              <a href="decision-time-guidance.html">
+                <span>Guidance</span>
+                <strong>Decision-Time Guidance</strong>
+                <p>Inject one well-timed correction instead of front-loading every rule into the prompt.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+      </div>
+    </main>
+    <script src="../app.js"></script>
+  </body>
+</html>
