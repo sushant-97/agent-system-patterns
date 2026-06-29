@@ -93,7 +93,7 @@
             <p class="article-lead">
               In May 2026, Anthropic published a Founder's Playbook for building an AI-native startup —
               a remap of the classic Idea → MVP → Launch → Scale arc for what's now possible. It's a
-              genuinely useful document. It's also a vendor's document. Here's a working engineer's
+              genuinely useful document. It's also a vendor's document. So here's a working engineer's
               read: which claims hold up, where the caveats live, and how to leverage it without
               inheriting a pile of unverified AI output.
             </p>
@@ -109,93 +109,60 @@
               quietly hand you a bill?
             </p>
 
-            <h2>The claims, and how they hold up</h2>
+            <h2>Six claims, and how they hold up</h2>
 
-            <div class="claim">
-              <div class="claim-top">
-                <span class="claim-kicker">The claim</span>
-                <span class="verdict verdict--strong">Holds up</span>
-              </div>
-              <h3>Non-coders can ship production apps.</h3>
-              <p>
-                Shipping has genuinely been democratized; a first working version is hours, not months.
-                The asterisk: shipping is not maintaining. AI-generated code is plausible by default and
-                correct only sometimes. The moment that app touches real users and real money, "it ran
-                once" stops being good enough — which is exactly the gap behavioral verification exists
-                to close.
-              </p>
-            </div>
+            <h3>Non-coders can ship production apps</h3>
+            <p>
+              <strong class="verdict-lead">Holds up — with an asterisk.</strong> Shipping has genuinely
+              been democratized; a first working version is hours, not months. The asterisk: shipping is
+              not maintaining. AI-generated code is plausible by default and correct only sometimes. The
+              moment that app touches real users and real money, "it ran once" stops being good enough —
+              which is exactly the gap behavioral verification exists to close.
+            </p>
 
-            <div class="claim">
-              <div class="claim-top">
-                <span class="claim-kicker">The claim</span>
-                <span class="verdict verdict--strong">Holds up</span>
-              </div>
-              <h3>The founder becomes an orchestrator.</h3>
-              <p>
-                Orchestration sounds like relief, but you're really becoming a controller of autonomous
-                systems — and controllers need three things agents don't hand you for free: observability
-                (what is it doing?), intervention (can I correct it mid-run?), and a stop button. That's
-                the whole premise of decision-time guidance: watch the trajectory, nudge only when it
-                drifts.
-              </p>
-            </div>
+            <h3>The founder becomes an orchestrator</h3>
+            <p>
+              <strong class="verdict-lead">Holds up — and it's a skill, not a relief.</strong>
+              Orchestration sounds like delegation, but you're really becoming a controller of autonomous
+              systems. Controllers need three things agents don't hand you for free: observability (what
+              is it doing?), intervention (can I correct it mid-run?), and a stop button. That's the whole
+              premise of decision-time guidance — watch the trajectory, nudge only when it drifts.
+            </p>
 
-            <div class="claim">
-              <div class="claim-top">
-                <span class="claim-kicker">The claim</span>
-                <span class="verdict verdict--caution">Right problem, under-specified</span>
-              </div>
-              <h3>Architecture, scope, and security keep AI-built MVPs out of technical debt.</h3>
-              <p>
-                This is the most important line in the playbook and the one that most needs teeth.
-                "Be disciplined" is advice; a control boundary is a mechanism. The mechanism that works
-                here is reversible execution — let the agent build in an isolated copy, diff what changed,
-                and promote only what passes policy. Debt you can roll back isn't debt; it's a draft.
-              </p>
-            </div>
+            <h3>Architecture and scope keep AI-built MVPs out of technical debt</h3>
+            <p>
+              <strong class="verdict-lead">Right problem, under-specified.</strong> This is the most
+              important line in the playbook and the one that most needs teeth. "Be disciplined" is
+              advice; a control boundary is a mechanism. The mechanism that works here is reversible
+              execution — let the agent build in an isolated copy, diff what changed, and promote only
+              what passes policy. Debt you can roll back isn't debt; it's a draft.
+            </p>
 
-            <div class="claim">
-              <div class="claim-top">
-                <span class="claim-kicker">The claim</span>
-                <span class="verdict verdict--strong">Essential</span>
-              </div>
-              <h3>A measurement framework separates real product-market fit from hype.</h3>
-              <p>
-                Telling genuine traction from a sugar high is just self-verification pointed at the
-                business: define the behavior that counts (retention, repeat use, willingness to pay),
-                capture evidence, and refuse a metric that looks good but doesn't move durable state.
-                Vanity metrics are the Potemkin app of go-to-market.
-              </p>
-            </div>
+            <h3>A measurement framework separates real product-market fit from hype</h3>
+            <p>
+              <strong class="verdict-lead">Essential.</strong> Telling genuine traction from a sugar high
+              is just self-verification pointed at the business: define the behavior that counts —
+              retention, repeat use, willingness to pay — capture evidence, and refuse a metric that looks
+              good but doesn't move durable state. Vanity metrics are the Potemkin app of go-to-market.
+            </p>
 
-            <div class="claim">
-              <div class="claim-top">
-                <span class="claim-kicker">The claim</span>
-                <span class="verdict verdict--caution">Biggest lever, sharpest edge</span>
-              </div>
-              <h3>Replace founder attention with agentic workflows.</h3>
-              <p>
-                Automating your own attention is the most valuable and most dangerous move in the book.
-                An agent acting on your behalf compounds whatever you didn't supervise — good and bad.
-                Don't automate a workflow you haven't first made reversible and observable. Attention is
-                expensive; an un-audited mistake at scale is more so.
-              </p>
-            </div>
+            <h3>Replace founder attention with agentic workflows</h3>
+            <p>
+              <strong class="verdict-lead">The biggest lever, and the sharpest edge.</strong> Automating
+              your own attention is the most valuable and most dangerous move in the book. An agent acting
+              on your behalf compounds whatever you didn't supervise — good and bad. Don't automate a
+              workflow you haven't first made reversible and observable. Attention is expensive; an
+              un-audited mistake at scale is more so.
+            </p>
 
-            <div class="claim">
-              <div class="claim-top">
-                <span class="claim-kicker">The claim</span>
-                <span class="verdict verdict--nuance">Useful, vendor-shaped</span>
-              </div>
-              <h3>A product matrix maps the right tool to each stage.</h3>
-              <p>
-                The specific matrix is Anthropic's product line, and that's fine. The transferable idea
-                is sound: match the tool to the stage and the stakes — the lightest thing that works for
-                exploration, the most controlled thing for anything that touches durable state. The
-                principle outlives any one product page.
-              </p>
-            </div>
+            <h3>A product matrix maps the right tool to each stage</h3>
+            <p>
+              <strong class="verdict-lead">Useful, but vendor-shaped.</strong> The specific matrix is
+              Anthropic's product line, and that's fine. The transferable idea is sound: match the tool to
+              the stage and the stakes — the lightest thing that works for exploration, the most
+              controlled thing for anything that touches durable state. The principle outlives any one
+              product page.
+            </p>
 
             <blockquote class="pull-quote">
               Shipping is not maintaining. A controller's job starts the moment the agent stops.
@@ -205,7 +172,7 @@
             <p>
               A short operating checklist, drawn from the playbook and the controls we write about here:
             </p>
-            <ul class="checklist">
+            <ul>
               <li>Treat every AI-built feature as a claim until an executable check proves the behavior. (<a href="self-verification-loop.html">Self-Verification Loop</a>)</li>
               <li>Put any risky or stateful change behind a reversible sandbox; promote only verified diffs. (<a href="reversible-sandbox-execution.html">Reversible Sandbox Execution</a>)</li>
               <li>As you orchestrate more agents, guide them at decision time instead of front-loading giant prompts. (<a href="decision-time-guidance.html">Decision-Time Guidance</a>)</li>
@@ -213,16 +180,14 @@
               <li>Keep a human override path for anything automated. Speed is only an asset when you can stop.</li>
             </ul>
 
-            <div class="takeaway">
-              <span class="takeaway-label">The bottom line</span>
-              <p>
-                The Founder's Playbook is a strong map of where AI takes the startup — orchestration,
-                speed, leverage. What it understandably soft-pedals is the engineering tax that rides
-                along with autonomy: the faster you let agents build and act, the more you need
-                verification, reversibility, and runtime guidance underneath them. Read it for the
-                destination. Bring your own controls for the road.
-              </p>
-            </div>
+            <h2>The bottom line</h2>
+            <p>
+              The Founder's Playbook is a strong map of where AI takes the startup — orchestration, speed,
+              leverage. What it understandably soft-pedals is the engineering tax that rides along with
+              autonomy: the faster you let agents build and act, the more you need verification,
+              reversibility, and runtime guidance underneath them. Read it for the destination. Bring your
+              own controls for the road.
+            </p>
           </div>
 
           <section class="article-cta">
