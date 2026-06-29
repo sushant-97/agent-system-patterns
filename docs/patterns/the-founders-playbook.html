@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Founder's Playbook, stress-tested — Agent System Patterns</title>
+    <meta
+      name="description"
+      content="A working engineer's assessment of Anthropic's Founder's Playbook: which claims about the AI-native startup hold up, where the caveats live, and how to leverage it with real reliability controls."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="site-body">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">Engineering notes</p>
+        <a class="brand-link" href="../index.html">agent-system-patterns</a>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="../index.html">All notes</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns">GitHub</a>
+      </nav>
+    </header>
+
+    <main class="article-page">
+      <div class="article-wrap">
+        <aside class="article-rail" aria-label="Share this note">
+          <a class="rail-btn" href="../index.html" aria-label="Back to all notes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+          </a>
+          <div class="rail-sep"></div>
+          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=The%20Founders%20Playbook%2C%20stress-tested&url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on X">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+          </a>
+          <a class="rail-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+          </a>
+        </aside>
+
+        <article class="article">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="sep">/</span>
+            <a href="../index.html#posts">Posts</a>
+            <span class="sep">/</span>
+            <span class="current">The Founder's Playbook, stress-tested</span>
+          </nav>
+
+          <h1 class="article-title">The Founder's Playbook, <span class="grad">stress-tested.</span></h1>
+          <p class="article-subtitle">Agent System Patterns · Perspective</p>
+
+          <div class="article-byline">
+            <div class="byline-id">
+              <span class="avatar">SP</span>
+              <div class="byline-meta">
+                <span class="byline-name">Sushant Pargaonkar</span>
+                <span class="byline-date">June 2026 · 6 min read</span>
+              </div>
+            </div>
+            <div class="byline-share">
+              <a class="share-btn" href="https://twitter.com/intent/tweet?text=The%20Founders%20Playbook%2C%20stress-tested&url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on X">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener" aria-label="View on GitHub">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.92c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <figure class="article-banner article-cover">
+            <div class="cover-inner">
+              <span class="cover-kicker">Field assessment</span>
+              <p class="cover-line">From individual contributor to <strong>orchestrator.</strong></p>
+              <div class="cover-stages">
+                <span>Idea</span>
+                <span>MVP</span>
+                <span>Launch</span>
+                <span>Scale</span>
+              </div>
+            </div>
+          </figure>
+
+          <div class="article-body">
+            <p class="article-lead">
+              In May 2026, Anthropic published a Founder's Playbook for building an AI-native startup —
+              a remap of the classic Idea → MVP → Launch → Scale arc for what's now possible. It's a
+              genuinely useful document. It's also a vendor's document. Here's a working engineer's
+              read: which claims hold up, where the caveats live, and how to leverage it without
+              inheriting a pile of unverified AI output.
+            </p>
+
+            <h2>The thesis, in one line</h2>
+            <p>
+              The playbook's spine is a role change. Anthropic frames the founder's job as shifting
+              <a href="https://claude.com/blog/the-founders-playbook" target="_blank" rel="noopener">"from individual contributor to orchestrator"</a>
+              — you stop being the person who types every line and become the person who directs a fleet
+              of agents across four stages, each with its own goals, exit criteria, and failure modes.
+              Hard to argue with the direction. The interesting questions are second-order: what does
+              orchestration actually demand of you, and where does the cheerful version of the story
+              quietly hand you a bill?
+            </p>
+
+            <h2>The claims, and how they hold up</h2>
+
+            <div class="claim">
+              <div class="claim-top">
+                <span class="claim-kicker">The claim</span>
+                <span class="verdict verdict--strong">Holds up</span>
+              </div>
+              <h3>Non-coders can ship production apps.</h3>
+              <p>
+                Shipping has genuinely been democratized; a first working version is hours, not months.
+                The asterisk: shipping is not maintaining. AI-generated code is plausible by default and
+                correct only sometimes. The moment that app touches real users and real money, "it ran
+                once" stops being good enough — which is exactly the gap behavioral verification exists
+                to close.
+              </p>
+            </div>
+
+            <div class="claim">
+              <div class="claim-top">
+                <span class="claim-kicker">The claim</span>
+                <span class="verdict verdict--strong">Holds up</span>
+              </div>
+              <h3>The founder becomes an orchestrator.</h3>
+              <p>
+                Orchestration sounds like relief, but you're really becoming a controller of autonomous
+                systems — and controllers need three things agents don't hand you for free: observability
+                (what is it doing?), intervention (can I correct it mid-run?), and a stop button. That's
+                the whole premise of decision-time guidance: watch the trajectory, nudge only when it
+                drifts.
+              </p>
+            </div>
+
+            <div class="claim">
+              <div class="claim-top">
+                <span class="claim-kicker">The claim</span>
+                <span class="verdict verdict--caution">Right problem, under-specified</span>
+              </div>
+              <h3>Architecture, scope, and security keep AI-built MVPs out of technical debt.</h3>
+              <p>
+                This is the most important line in the playbook and the one that most needs teeth.
+                "Be disciplined" is advice; a control boundary is a mechanism. The mechanism that works
+                here is reversible execution — let the agent build in an isolated copy, diff what changed,
+                and promote only what passes policy. Debt you can roll back isn't debt; it's a draft.
+              </p>
+            </div>
+
+            <div class="claim">
+              <div class="claim-top">
+                <span class="claim-kicker">The claim</span>
+                <span class="verdict verdict--strong">Essential</span>
+              </div>
+              <h3>A measurement framework separates real product-market fit from hype.</h3>
+              <p>
+                Telling genuine traction from a sugar high is just self-verification pointed at the
+                business: define the behavior that counts (retention, repeat use, willingness to pay),
+                capture evidence, and refuse a metric that looks good but doesn't move durable state.
+                Vanity metrics are the Potemkin app of go-to-market.
+              </p>
+            </div>
+
+            <div class="claim">
+              <div class="claim-top">
+                <span class="claim-kicker">The claim</span>
+                <span class="verdict verdict--caution">Biggest lever, sharpest edge</span>
+              </div>
+              <h3>Replace founder attention with agentic workflows.</h3>
+              <p>
+                Automating your own attention is the most valuable and most dangerous move in the book.
+                An agent acting on your behalf compounds whatever you didn't supervise — good and bad.
+                Don't automate a workflow you haven't first made reversible and observable. Attention is
+                expensive; an un-audited mistake at scale is more so.
+              </p>
+            </div>
+
+            <div class="claim">
+              <div class="claim-top">
+                <span class="claim-kicker">The claim</span>
+                <span class="verdict verdict--nuance">Useful, vendor-shaped</span>
+              </div>
+              <h3>A product matrix maps the right tool to each stage.</h3>
+              <p>
+                The specific matrix is Anthropic's product line, and that's fine. The transferable idea
+                is sound: match the tool to the stage and the stakes — the lightest thing that works for
+                exploration, the most controlled thing for anything that touches durable state. The
+                principle outlives any one product page.
+              </p>
+            </div>
+
+            <blockquote class="pull-quote">
+              Shipping is not maintaining. A controller's job starts the moment the agent stops.
+            </blockquote>
+
+            <h2>How to leverage it</h2>
+            <p>
+              A short operating checklist, drawn from the playbook and the controls we write about here:
+            </p>
+            <ul class="checklist">
+              <li>Treat every AI-built feature as a claim until an executable check proves the behavior. (<a href="self-verification-loop.html">Self-Verification Loop</a>)</li>
+              <li>Put any risky or stateful change behind a reversible sandbox; promote only verified diffs. (<a href="reversible-sandbox-execution.html">Reversible Sandbox Execution</a>)</li>
+              <li>As you orchestrate more agents, guide them at decision time instead of front-loading giant prompts. (<a href="decision-time-guidance.html">Decision-Time Guidance</a>)</li>
+              <li>Measure outcomes, not output — retention and revenue over demos and dashboards.</li>
+              <li>Keep a human override path for anything automated. Speed is only an asset when you can stop.</li>
+            </ul>
+
+            <div class="takeaway">
+              <span class="takeaway-label">The bottom line</span>
+              <p>
+                The Founder's Playbook is a strong map of where AI takes the startup — orchestration,
+                speed, leverage. What it understandably soft-pedals is the engineering tax that rides
+                along with autonomy: the faster you let agents build and act, the more you need
+                verification, reversibility, and runtime guidance underneath them. Read it for the
+                destination. Bring your own controls for the road.
+              </p>
+            </div>
+          </div>
+
+          <section class="article-cta">
+            <h2>Read the source — and the controls</h2>
+            <p>Anthropic's playbook is worth your time. Pair it with the reliability patterns it quietly depends on.</p>
+            <div class="button-row">
+              <a class="button button-primary" href="https://claude.com/blog/the-founders-playbook" target="_blank" rel="noopener">Read Anthropic's playbook</a>
+              <a class="button button-secondary" href="../index.html#posts">Browse the patterns</a>
+            </div>
+          </section>
+
+          <section class="article-related">
+            <p class="eyebrow">The controls it leans on</p>
+            <div class="related-grid related-grid--three">
+              <a href="decision-time-guidance.html">
+                <span>Guidance</span>
+                <strong>Decision-Time Guidance</strong>
+                <p>Steer a fleet of agents at the moment of each decision, not with one giant prompt.</p>
+              </a>
+              <a href="self-verification-loop.html">
+                <span>Verification</span>
+                <strong>Self-Verification Loop</strong>
+                <p>Prove AI-built behavior works before it counts as done — or as traction.</p>
+              </a>
+              <a href="reversible-sandbox-execution.html">
+                <span>Containment</span>
+                <strong>Reversible Sandbox Execution</strong>
+                <p>Let agents move fast on risky changes while keeping every step reversible.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+      </div>
+    </main>
+    <script src="../app.js"></script>
+  </body>
+</html>
