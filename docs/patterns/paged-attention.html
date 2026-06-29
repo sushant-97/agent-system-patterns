@@ -32,7 +32,7 @@
       font-size: 12px;
       line-height: 1.6;
       color: rgba(243, 230, 214, 0.62);
-      font-family: var(--sans);
+      font-family: var(--sans, "Public Sans", system-ui, sans-serif);
     }
     .mn-block .mn-num {
       display: inline-flex;
@@ -84,11 +84,11 @@
       text-align: center;
       font-size: 12px;
       color: rgba(243, 230, 214, 0.45);
-      font-family: var(--sans);
+      font-family: var(--sans, "Public Sans", system-ui, sans-serif);
     }
     .demo-label {
       font-size: 11px;
-      font-family: var(--mono);
+      font-family: var(--mono, "IBM Plex Mono", ui-monospace, monospace);
       color: rgba(243, 230, 214, 0.4);
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -123,7 +123,7 @@
     .vl.rt  { text-anchor:end; }
     .vl.hd  { fill:rgba(243,230,214,.95); font-size:10px; letter-spacing:.06em; }
 
-    .box      { fill:rgba(243,230,214,.05); stroke:rgba(243,230,214,.2); stroke-width:1; rx:5; }
+    .box      { fill:rgba(243,230,214,.05); stroke:rgba(243,230,214,.2); stroke-width:1; }
     .box.clay { fill:rgba(226,135,90,.1); stroke:rgba(226,135,90,.38); }
     .box.teal { fill:rgba(87,184,184,.1); stroke:rgba(87,184,184,.38); }
     .box.gold { fill:rgba(232,187,108,.1); stroke:rgba(232,187,108,.42); }
@@ -183,6 +183,21 @@
     }
     .callout strong { color: #e8bb6c; }
 
+    /* ─── tufte-body overrides ─────────────────────── */
+    /* article-body has margin-top by default; reset it inside the tufte column */
+    .tufte-body.article-body { margin-top: 0; }
+    /* inline code in prose — keep readable on the light page bg, but NOT inside code-blocks */
+    .tufte-body :not(.code-block) > code {
+      background: rgba(25,23,18,.07);
+      color: var(--accent-deep);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.84em;
+    }
+    /* comparison table text — override --read (dark) since bg is light */
+    .cmp-row p, .cmp-row span { color: var(--ink-soft); }
+    .cmp-head > * { color: var(--muted); }
+
     /* ─── Responsive ────────────────────────────────── */
     @media (max-width: 860px) {
       .tufte-wrap { grid-template-columns: 1fr; }
@@ -206,7 +221,7 @@
     </nav>
   </header>
 
-  <main class="article-page" style="max-width:none; padding:0;">
+  <main style="padding-bottom: 80px;">
     <div style="max-width:1200px; margin:0 auto; padding: clamp(20px,4vw,48px) clamp(16px,3vw,32px);">
 
       <!-- breadcrumb -->
