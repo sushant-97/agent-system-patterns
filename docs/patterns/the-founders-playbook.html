@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The Founder's Playbook, stress-tested — Agent System Patterns</title>
+    <title>The Founder's Playbook, decoded — Agent System Patterns</title>
     <meta
       name="description"
-      content="A working engineer's assessment of Anthropic's Founder's Playbook: which claims about the AI-native startup hold up, where the caveats live, and how to leverage it with real reliability controls."
+      content="A close, visual read of Anthropic's 36-page Founder's Playbook for AI-native startups: the orchestrator shift, the three Claude surfaces, and the four stages — Idea, MVP, Launch, Scale."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,6 +15,82 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../styles.css" />
+    <style>
+      /* ---- Diagram styles (scoped) ---- */
+      .demo {
+        margin: clamp(26px, 4vw, 42px) 0 0;
+        padding: clamp(16px, 3vw, 28px);
+        border: 1px solid rgba(25, 23, 18, 0.24);
+        border-radius: var(--r-lg);
+        background: radial-gradient(130% 130% at 18% 0%, #251d15, #15110c 72%);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .demo svg { width: 100%; height: auto; display: block; }
+      .demo figcaption {
+        margin-top: 14px;
+        text-align: center;
+        font-size: 12.5px;
+        color: rgba(243, 230, 214, 0.58);
+      }
+
+      .viz-node { transform-box: fill-box; transform-origin: center; animation: vizPulse 2.6s ease-in-out infinite; }
+      .viz-node:nth-of-type(2) { animation-delay: 0.5s; }
+      .viz-node:nth-of-type(3) { animation-delay: 1s; }
+      .viz-node:nth-of-type(4) { animation-delay: 1.5s; }
+
+      .viz-edge { stroke: rgba(243, 230, 214, 0.14); stroke-width: 1.3; fill: none; }
+      .viz-flow { fill: none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 3 12; animation: vizDash 1.1s linear infinite; }
+      .viz-flow.clay { stroke: #e2875a; filter: drop-shadow(0 0 4px rgba(226, 135, 90, 0.55)); }
+      .viz-flow.teal { stroke: #57b8b8; filter: drop-shadow(0 0 4px rgba(87, 184, 184, 0.5)); }
+      .viz-flow.gold { stroke: #e8bb6c; filter: drop-shadow(0 0 4px rgba(232, 187, 108, 0.5)); }
+      .viz-flow.slow { animation-duration: 1.7s; }
+
+      .viz-dot { offset-distance: 0%; animation: vizMove 3s cubic-bezier(0.5, 0, 0.5, 1) infinite; filter: drop-shadow(0 0 5px rgba(232, 187, 108, 0.85)); }
+      .viz-dot.d2 { animation-delay: 1s; }
+      .viz-dot.d3 { animation-delay: 2s; }
+
+      .viz-orbit { offset-distance: 0%; animation: vizOrbit 7s linear infinite; filter: drop-shadow(0 0 6px rgba(232, 187, 108, 0.9)); }
+      .viz-ring { fill: none; stroke: #e8bb6c; stroke-width: 2; stroke-dasharray: 3 11; animation: vizDash 1.4s linear infinite; filter: drop-shadow(0 0 4px rgba(232, 187, 108, 0.4)); }
+
+      .viz-curve { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 900; stroke-dashoffset: 900; animation: vizTrace 5s ease-in-out infinite; }
+      .viz-curve.clay { stroke: #e2875a; filter: drop-shadow(0 0 5px rgba(226, 135, 90, 0.4)); }
+      .viz-curve.teal { stroke: #57b8b8; filter: drop-shadow(0 0 5px rgba(87, 184, 184, 0.4)); }
+      .viz-axis { stroke: rgba(243, 230, 214, 0.2); stroke-width: 1; }
+      .viz-grid { stroke: rgba(243, 230, 214, 0.07); stroke-width: 1; }
+
+      .viz-label { fill: rgba(243, 230, 214, 0.85); font-family: var(--mono); font-size: 13px; text-anchor: middle; }
+      .viz-sub { fill: rgba(243, 230, 214, 0.55); font-family: var(--mono); font-size: 11px; text-anchor: middle; }
+      .viz-chip { fill: rgba(243, 230, 214, 0.05); stroke: rgba(243, 230, 214, 0.22); }
+
+      /* product matrix table */
+      .matrix { margin: clamp(24px, 4vw, 36px) 0 0; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-sm); }
+      .matrix-row { display: grid; grid-template-columns: 150px 1.1fr 1.2fr; }
+      .matrix-row + .matrix-row { border-top: 1px solid var(--line); }
+      .matrix-row > * { padding: 16px 18px; font-size: 15px; line-height: 1.5; margin: 0; }
+      .matrix-head > * { font-size: 10.5px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--accent-deep); background: var(--surface-2); }
+      .matrix-row strong { font-family: var(--mono); font-weight: 600; font-size: 14px; color: var(--ink); }
+      .matrix-row p { color: var(--read); }
+      .matrix-row span { color: var(--muted); }
+
+      @keyframes vizPulse { 0%, 100% { transform: scale(0.84); opacity: 0.55; } 50% { transform: scale(1.08); opacity: 1; } }
+      @keyframes vizDash { to { stroke-dashoffset: -15; } }
+      @keyframes vizMove { 0% { offset-distance: 0%; } 80% { offset-distance: 100%; } 100% { offset-distance: 100%; } }
+      @keyframes vizOrbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+      @keyframes vizTrace { 0% { stroke-dashoffset: 900; } 60% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+
+      @media (max-width: 600px) {
+        .matrix-row { grid-template-columns: 1fr; }
+        .matrix-row > * { padding: 12px 16px; }
+        .matrix-row > * + * { border-top: 1px solid var(--line); }
+        .matrix-head { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .demo * { animation: none !important; }
+        .viz-curve { stroke-dashoffset: 0; }
+        .viz-flow, .viz-ring { stroke-dasharray: none; opacity: 0.75; }
+      }
+    </style>
   </head>
   <body class="site-body">
     <header class="topbar">
@@ -35,7 +111,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           </a>
           <div class="rail-sep"></div>
-          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=The%20Founders%20Playbook%2C%20stress-tested&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fthe-founders-playbook.html" target="_blank" rel="noopener" aria-label="Share on X">
+          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=The%20Founder%27s%20Playbook%2C%20decoded&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fthe-founders-playbook.html" target="_blank" rel="noopener" aria-label="Share on X">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
           </a>
           <a class="rail-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fthe-founders-playbook.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
@@ -49,22 +125,22 @@
             <span class="sep">/</span>
             <a href="../index.html#posts">Posts</a>
             <span class="sep">/</span>
-            <span class="current">The Founder's Playbook, stress-tested</span>
+            <span class="current">The Founder's Playbook, decoded</span>
           </nav>
 
-          <h1 class="article-title">The Founder's Playbook, <span class="grad">stress-tested.</span></h1>
-          <p class="article-subtitle">Agent System Patterns · Perspective</p>
+          <h1 class="article-title">The Founder's Playbook, <span class="grad">decoded.</span></h1>
+          <p class="article-subtitle">Agent System Patterns · Deep read</p>
 
           <div class="article-byline">
             <div class="byline-id">
               <span class="avatar">SP</span>
               <div class="byline-meta">
                 <span class="byline-name">Sushant Pargaonkar</span>
-                <span class="byline-date">June 2026 · 6 min read</span>
+                <span class="byline-date">June 2026 · 9 min read</span>
               </div>
             </div>
             <div class="byline-share">
-              <a class="share-btn" href="https://twitter.com/intent/tweet?text=The%20Founders%20Playbook%2C%20stress-tested&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fthe-founders-playbook.html" target="_blank" rel="noopener" aria-label="Share on X">
+              <a class="share-btn" href="https://twitter.com/intent/tweet?text=The%20Founder%27s%20Playbook%2C%20decoded&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fthe-founders-playbook.html" target="_blank" rel="noopener" aria-label="Share on X">
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
               </a>
               <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fthe-founders-playbook.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
@@ -76,126 +152,244 @@
             </div>
           </div>
 
-          <figure class="article-banner article-cover">
-            <div class="cover-inner">
-              <span class="cover-kicker">Field assessment</span>
-              <p class="cover-line">From individual contributor to <strong>orchestrator.</strong></p>
-              <div class="cover-stages">
-                <span>Idea</span>
-                <span>MVP</span>
-                <span>Launch</span>
-                <span>Scale</span>
-              </div>
-            </div>
-          </figure>
-
           <div class="article-body">
             <p class="article-lead">
-              In May 2026, Anthropic published a Founder's Playbook for building an AI-native startup —
-              a remap of the classic Idea → MVP → Launch → Scale arc for what's now possible. It's a
-              genuinely useful document. It's also a vendor's document. So here's a working engineer's
-              read: which claims hold up, where the caveats live, and how to leverage it without
-              inheriting a pile of unverified AI output.
+              In May 2026, Anthropic published a 36-page Founder's Playbook for building an AI-native
+              startup. Most coverage stopped at the blurb. I read the whole thing — twice — and pulled
+              it apart into the map below: one role change, three tools, four stages. Here's the
+              playbook, decoded, with the diagrams it deserves.
             </p>
 
-            <h2>The thesis, in one line</h2>
+            <figure class="demo">
+              <svg viewBox="0 0 600 160" role="img" aria-label="The four startup stages: Idea, MVP, Launch, Scale">
+                <line class="viz-flow teal" x1="80" y1="80" x2="540" y2="80" />
+                <circle class="viz-dot" r="5" fill="#e8bb6c" style="offset-path: path('M80 80 L540 80')" />
+                <g>
+                  <circle class="viz-node" cx="80" cy="80" r="13" fill="#e2875a" />
+                  <circle class="viz-node" cx="233" cy="80" r="13" fill="#efe6d6" />
+                  <circle class="viz-node" cx="386" cy="80" r="13" fill="#efe6d6" />
+                  <circle class="viz-node" cx="540" cy="80" r="13" fill="#57b8b8" />
+                </g>
+                <text class="viz-label" x="80" y="44">Idea</text>
+                <text class="viz-label" x="233" y="44">MVP</text>
+                <text class="viz-label" x="386" y="44">Launch</text>
+                <text class="viz-label" x="540" y="44">Scale</text>
+                <text class="viz-sub" x="80" y="124">validate</text>
+                <text class="viz-sub" x="233" y="124">find fit</text>
+                <text class="viz-sub" x="386" y="124">systematize</text>
+                <text class="viz-sub" x="540" y="124">compound</text>
+              </svg>
+              <figcaption>The whole journey on one track — and AI compresses each leg from quarters into weeks.</figcaption>
+            </figure>
+
+            <h2>The one idea: founder as orchestrator</h2>
             <p>
-              The playbook's spine is a role change. Anthropic frames the founder's job as shifting
-              <a href="https://claude.com/blog/the-founders-playbook" target="_blank" rel="noopener">"from individual contributor to orchestrator"</a>
-              — you stop being the person who types every line and become the person who directs a fleet
-              of agents across four stages, each with its own goals, exit criteria, and failure modes.
-              Hard to argue with the direction. The interesting questions are second-order: what does
-              orchestration actually demand of you, and where does the cheerful version of the story
-              quietly hand you a bill?
+              The playbook's spine is a single role change. The wall between "people who can build" and
+              "people with ideas worth building" has dissolved, so the founder stops being the person who
+              executes everything and becomes an <strong>orchestrator of agents</strong> — directing a
+              fleet of AI surfaces that read files, run commands, ship code, and run ops. Your attention
+              moves up the stack, from <em>doing the work</em> to <em>deciding what work to do</em>.
             </p>
 
-            <h2>Six claims, and how they hold up</h2>
+            <figure class="demo">
+              <svg viewBox="0 0 560 290" role="img" aria-label="A founder orchestrating three Claude surfaces: Chat, Cowork, and Code">
+                <line class="viz-flow gold" x1="280" y1="150" x2="280" y2="74" />
+                <line class="viz-flow teal slow" x1="280" y1="150" x2="135" y2="232" />
+                <line class="viz-flow clay" x1="280" y1="150" x2="425" y2="232" />
+                <circle class="viz-dot" r="3.6" fill="#e8bb6c" style="offset-path: path('M280 150 L280 74')" />
+                <circle class="viz-dot d2" r="3.6" fill="#57b8b8" style="offset-path: path('M280 150 L135 232')" />
+                <circle class="viz-dot d3" r="3.6" fill="#e2875a" style="offset-path: path('M280 150 L425 232')" />
+                <g>
+                  <rect class="viz-chip" x="226" y="38" width="108" height="40" rx="10" />
+                  <rect class="viz-chip" x="74" y="214" width="122" height="44" rx="10" />
+                  <rect class="viz-chip" x="364" y="214" width="122" height="44" rx="10" />
+                </g>
+                <text class="viz-label" x="280" y="56">Chat</text>
+                <text class="viz-sub" x="280" y="71">ask · sanity-check</text>
+                <text class="viz-label" x="135" y="234">Cowork</text>
+                <text class="viz-sub" x="135" y="249">research · ops</text>
+                <text class="viz-label" x="425" y="234">Code</text>
+                <text class="viz-sub" x="425" y="249">build · ship</text>
+                <circle class="viz-node" cx="280" cy="150" r="30" fill="#e2875a" />
+                <text x="280" y="155" text-anchor="middle" style="fill:#fbf3ea;font-family:var(--mono);font-size:13px;font-weight:600">you</text>
+              </svg>
+              <figcaption>One founder, three surfaces. The job isn't writing — it's directing.</figcaption>
+            </figure>
 
-            <h3>Non-coders can ship production apps</h3>
+            <h2>Three surfaces, one Claude</h2>
             <p>
-              <strong class="verdict-lead">Holds up — with an asterisk.</strong> Shipping has genuinely
-              been democratized; a first working version is hours, not months. The asterisk: shipping is
-              not maintaining. AI-generated code is plausible by default and correct only sometimes. The
-              moment that app touches real users and real money, "it ran once" stops being good enough —
-              which is exactly the gap behavioral verification exists to close.
+              The playbook is careful that this isn't one tool but three workspaces over the same model.
+              Picking the right one is most of the skill — Chat for the constant small questions, Cowork
+              for finished work built from your files and systems, Code for anything that ships.
             </p>
 
-            <h3>The founder becomes an orchestrator</h3>
+            <div class="matrix">
+              <div class="matrix-row matrix-head">
+                <span>Surface</span>
+                <span>Reach for it when…</span>
+                <span>Because</span>
+              </div>
+              <div class="matrix-row">
+                <strong>Chat</strong>
+                <p>A question, a rewrite, a quick brainstorm or sanity-check.</p>
+                <span>Fast and conversational, no setup.</span>
+              </div>
+              <div class="matrix-row">
+                <strong>Cowork</strong>
+                <p>Research, analysis, or a finished document built from your files and tools.</p>
+                <span>Folder access, connectors, skills, scheduled runs.</span>
+              </div>
+              <div class="matrix-row">
+                <strong>Code</strong>
+                <p>Writing, testing, or shipping software across a real codebase.</p>
+                <span>Codebase access, diffs, git, dev environments.</span>
+              </div>
+            </div>
+
+            <h2>Stage 1 — Idea: don't build until the evidence does</h2>
             <p>
-              <strong class="verdict-lead">Holds up — and it's a skill, not a relief.</strong>
-              Orchestration sounds like delegation, but you're really becoming a controller of autonomous
-              systems. Controllers need three things agents don't hand you for free: observability (what
-              is it doing?), intervention (can I correct it mid-run?), and a stop button. That's the whole
-              premise of decision-time guidance — watch the trajectory, nudge only when it drifts.
+              The goal here is research-grade validation, and the discipline is restraint:
+              <strong>don't write a line of production code until the evidence justifies it.</strong> You
+              exit the stage at problem-solution fit — when you can name exactly who has the problem, how
+              often and how badly, and you have honest signal that building is a reasoned bet, not faith.
+            </p>
+            <p>
+              The failure modes are all the same mistake wearing different clothes: moving faster than
+              your understanding. Agentic coding has collapsed the distance from idea to prototype, so it's
+              never been easier to <em>mistake building for validating</em> — to treat a slick prototype as
+              proof the hypothesis was right. Worse, a research engine will happily confirm whatever you
+              ask it to. The playbook's antidote is the same tool pointed the other way: make Claude your
+              <strong>devil's advocate</strong> — argue against the idea, hunt disconfirming evidence,
+              map competitors by the threat that's <em>hardest</em> to dismiss. In customer discovery, ask
+              about the past ("tell me about the last time this happened"), never the hypothetical future.
             </p>
 
-            <h3>Architecture and scope keep AI-built MVPs out of technical debt</h3>
+            <h2>Stage 2 — MVP: speed without the debt</h2>
             <p>
-              <strong class="verdict-lead">Right problem, under-specified.</strong> This is the most
-              important line in the playbook and the one that most needs teeth. "Be disciplined" is
-              advice; a control boundary is a mechanism. The mechanism that works here is reversible
-              execution — let the agent build in an isolated copy, diff what changed, and promote only
-              what passes policy. Debt you can roll back isn't debt; it's a draft.
+              Now you translate a validated problem into the smallest product real users will actually
+              use. Exit is genuine product-market fit — retention, revenue, or referral, held across
+              several iteration cycles (the playbook likes the Sean Ellis test: 40%+ of users would be
+              "very disappointed" to lose it). But the MVP stage hides the playbook's sharpest warning, and
+              it's an engineering one.
+            </p>
+            <p>
+              Ordinary technical debt accrues gradually and clears in a sprint. <strong>Agentic technical
+              debt compounds.</strong> Without specs and an architecture the AI can read, every session
+              re-derives foundational decisions from scratch and quietly drifts — until the codebase has no
+              coherent mental model and collapses under its own weight. The fix is persistent context from
+              day one: an architectural <strong>CLAUDE.md</strong>, a written scope with explicit "we
+              deliberately don't do this," a security review before any user, and a measurement framework
+              defined <em>before</em> launch so you can tell real traction from a Hacker-News sugar high.
             </p>
 
-            <h3>A measurement framework separates real product-market fit from hype</h3>
+            <figure class="demo">
+              <svg viewBox="0 0 560 280" role="img" aria-label="Two curves: technical debt compounding without guardrails versus staying flat with context and scope">
+                <line class="viz-grid" x1="60" y1="80" x2="520" y2="80" />
+                <line class="viz-grid" x1="60" y1="145" x2="520" y2="145" />
+                <line class="viz-axis" x1="60" y1="40" x2="60" y2="220" />
+                <line class="viz-axis" x1="60" y1="220" x2="524" y2="220" />
+                <path class="viz-curve clay" d="M70 205 C220 200 320 175 410 110 S500 35 512 30" />
+                <path class="viz-curve teal" d="M70 205 C220 198 360 190 512 178" />
+                <text x="430" y="70" style="fill:#e2875a;font-family:var(--mono);font-size:12px;text-anchor:end">no guardrails</text>
+                <text x="500" y="168" style="fill:#57b8b8;font-family:var(--mono);font-size:12px;text-anchor:end">context + scope</text>
+                <text class="viz-sub" x="60" y="34" style="text-anchor:end">debt</text>
+                <text class="viz-sub" x="520" y="240" style="text-anchor:end">sessions →</text>
+              </svg>
+              <figcaption>Same speed, two futures — drift compounds, legibility stays flat.</figcaption>
+            </figure>
+
+            <h2>Stage 3 — Launch: get out of your own way</h2>
             <p>
-              <strong class="verdict-lead">Essential.</strong> Telling genuine traction from a sugar high
-              is just self-verification pointed at the business: define the behavior that counts —
-              retention, repeat use, willingness to pay — capture evidence, and refuse a metric that looks
-              good but doesn't move durable state. Vanity metrics are the Potemkin app of go-to-market.
+              If MVP proved the product deserves to exist, Launch proves the <em>business</em> deserves to
+              grow. You exit on three conditions: growth is repeatable through channels you understand
+              (CAC, LTV, payback are numbers you can defend), the product holds up under real production
+              load, and — the hard one — <strong>operations run without you in every loop</strong>.
+            </p>
+            <p>
+              That last one is the stage's defining trap. The founder being in every decision was an asset
+              at MVP; at Launch it's the constraint. The tell is mundane: hour-long decisions now take a
+              week, support piles up because only you know the answer, tasks happen only when you remember
+              them. The remedy is an honest audit of everything you personally touch, sorted into
+              automate / delegate / keep — and the MVP debt finally coming due, paid down with an
+              architectural audit and real test coverage before it accrues interest.
             </p>
 
-            <h3>Replace founder attention with agentic workflows</h3>
+            <h2>Stage 4 — Scale: build a moat that compounds</h2>
             <p>
-              <strong class="verdict-lead">The biggest lever, and the sharpest edge.</strong> Automating
-              your own attention is the most valuable and most dangerous move in the book. An agent acting
-              on your behalf compounds whatever you didn't supervise — good and bad. Don't automate a
-              workflow you haven't first made reversible and observable. Attention is expensive; an
-              un-audited mistake at scale is more so.
+              The founder re-centers from builder to public-facing executive, and the exit stops being a
+              milestone — it's a threshold: the company is sustainable even as you step out of day-to-day,
+              proven by profitability, IPO-readiness, or acquisition. The animating question becomes:
+              <em>if a well-funded incumbent cloned your product today, would your users stay?</em>
+            </p>
+            <p>
+              The playbook's answer is a moat made of three compounding things: domain expertise encoded
+              as Skills and edge-case tests ("your test suite becomes a map of your moat"), a
+              <strong>data flywheel</strong> no copycat can buy, and workflow lock-in so deep that
+              switching becomes an operational project, not a product decision.
             </p>
 
-            <h3>A product matrix maps the right tool to each stage</h3>
+            <figure class="demo">
+              <svg viewBox="0 0 360 320" role="img" aria-label="A data flywheel looping through usage, feedback, improvement, and a better product">
+                <circle class="viz-ring" cx="180" cy="165" r="115" />
+                <circle class="viz-orbit" r="5.5" fill="#e8bb6c" style="offset-path: path('M180 50 A115 115 0 1 1 179.9 50')" />
+                <g>
+                  <circle class="viz-node" cx="180" cy="50" r="9" fill="#e2875a" />
+                  <circle class="viz-node" cx="295" cy="165" r="9" fill="#efe6d6" />
+                  <circle class="viz-node" cx="180" cy="280" r="9" fill="#57b8b8" />
+                  <circle class="viz-node" cx="65" cy="165" r="9" fill="#efe6d6" />
+                </g>
+                <text class="viz-label" x="180" y="32">usage</text>
+                <text class="viz-label" x="295" y="148">feedback</text>
+                <text class="viz-label" x="180" y="305">improvement</text>
+                <text class="viz-label" x="65" y="148">better product</text>
+                <text x="180" y="162" class="viz-sub">compounding</text>
+                <text x="180" y="178" class="viz-sub">moat</text>
+              </svg>
+              <figcaption>The data flywheel — time-locked, context-specific, and impossible to buy.</figcaption>
+            </figure>
+
+            <h2>The thread through all four stages</h2>
             <p>
-              <strong class="verdict-lead">Useful, but vendor-shaped.</strong> The specific matrix is
-              Anthropic's product line, and that's fine. The transferable idea is sound: match the tool to
-              the stage and the stakes — the lightest thing that works for exploration, the most
-              controlled thing for anything that touches durable state. The principle outlives any one
-              product page.
+              Read end to end, the playbook keeps repeating two moves. The first is to use Claude as a
+              <strong>structured devil's advocate</strong> at every stage — to refute the idea, to argue
+              the competitor wins, to make the skeptic's case against your own traction. The second is to
+              keep your <strong>sense-making ahead of your building</strong>. Both exist because the one
+              thing AI removed — friction — was also the thing that used to keep founders honest. When
+              building is instant and nearly free, judgment is the only brake left.
             </p>
 
-            <blockquote class="pull-quote">
-              Shipping is not maintaining. A controller's job starts the moment the agent stops.
-            </blockquote>
-
-            <h2>How to leverage it</h2>
+            <h2>Where the engineering gets real</h2>
             <p>
-              A short operating checklist, drawn from the playbook and the controls we write about here:
+              What strikes me, reading it as someone who works on agent reliability, is how much of the
+              playbook is quietly an engineering-controls document. "AI generates code that works, not code
+              that's secure." "Early numbers aren't product-market fit." "Each session drifts without
+              written context." Those aren't business notes — they're the exact failure modes that
+              verification, reversibility, and runtime guidance exist to catch. The playbook tells founders
+              <em>what</em> discipline to keep; these are the mechanisms that keep it:
             </p>
             <ul>
-              <li>Treat every AI-built feature as a claim until an executable check proves the behavior. (<a href="self-verification-loop.html">Self-Verification Loop</a>)</li>
-              <li>Put any risky or stateful change behind a reversible sandbox; promote only verified diffs. (<a href="reversible-sandbox-execution.html">Reversible Sandbox Execution</a>)</li>
-              <li>As you orchestrate more agents, guide them at decision time instead of front-loading giant prompts. (<a href="decision-time-guidance.html">Decision-Time Guidance</a>)</li>
-              <li>Measure outcomes, not output — retention and revenue over demos and dashboards.</li>
-              <li>Keep a human override path for anything automated. Speed is only an asset when you can stop.</li>
+              <li>Prove AI-built behavior works before it counts as done or as traction — <a href="self-verification-loop.html">Self-Verification Loop</a>.</li>
+              <li>Keep risky, stateful changes reversible so debt stays a draft you can roll back — <a href="reversible-sandbox-execution.html">Reversible Sandbox Execution</a>.</li>
+              <li>Steer the agents you're orchestrating at the moment of each decision — <a href="decision-time-guidance.html">Decision-Time Guidance</a>.</li>
             </ul>
 
             <h2>The bottom line</h2>
             <p>
-              The Founder's Playbook is a strong map of where AI takes the startup — orchestration, speed,
-              leverage. What it understandably soft-pedals is the engineering tax that rides along with
-              autonomy: the faster you let agents build and act, the more you need verification,
-              reversibility, and runtime guidance underneath them. Read it for the destination. Bring your
-              own controls for the road.
+              The Founder's Playbook is the clearest map yet of what an AI-native company looks like:
+              orchestration over execution, four compressed stages, a moat built from data and depth. Its
+              own thesis is that the bottleneck is no longer what you can build but what you choose to
+              build. The quiet corollary — the part worth bringing your own controls for — is that when
+              choosing is the whole job, the cost of choosing wrong, fast, and at scale is the only thing
+              left that can sink you.
             </p>
           </div>
 
           <section class="article-cta">
             <h2>Read the source — and the controls</h2>
-            <p>Anthropic's playbook is worth your time. Pair it with the reliability patterns it quietly depends on.</p>
+            <p>Anthropic's full playbook is worth your time. Pair it with the reliability patterns it quietly depends on.</p>
             <div class="button-row">
               <a class="button button-primary" href="https://claude.com/blog/the-founders-playbook" target="_blank" rel="noopener">Read Anthropic's playbook</a>
-              <a class="button button-secondary" href="../index.html#posts">Browse the patterns</a>
+              <a class="button button-secondary" href="../index.html#posts">Browse the notes</a>
             </div>
           </section>
 
