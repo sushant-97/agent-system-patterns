@@ -53,7 +53,7 @@
   /* ---- Scroll reveal ---- */
   if (!reduceMotion && "IntersectionObserver" in window) {
     var selector = [
-      ".post-card",
+      ".post-item",
       ".section-head",
       ".article-banner",
       ".article-body > *",
