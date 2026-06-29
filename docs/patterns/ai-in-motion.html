@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI, in motion — Agent System Patterns</title>
+    <meta
+      name="description"
+      content="A playground of animated AI explainers — neural signals, token trails, attention arcs, gradient descent, and a self-drawing loss curve. Every diagram is plain SVG and CSS."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      /* ---- Showcase diagram styles (scoped) ---- */
+      .demo {
+        margin: clamp(26px, 4vw, 42px) 0 0;
+        padding: clamp(16px, 3vw, 28px);
+        border: 1px solid rgba(25, 23, 18, 0.24);
+        border-radius: var(--r-lg);
+        background: radial-gradient(130% 130% at 18% 0%, #251d15, #15110c 72%);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .demo svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .demo figcaption {
+        margin-top: 14px;
+        text-align: center;
+        font-size: 12.5px;
+        letter-spacing: 0.02em;
+        color: rgba(243, 230, 214, 0.58);
+      }
+
+      .viz-node {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: vizPulse 2.6s ease-in-out infinite;
+      }
+      .viz-node:nth-of-type(2) { animation-delay: 0.3s; }
+      .viz-node:nth-of-type(3) { animation-delay: 0.6s; }
+      .viz-node:nth-of-type(4) { animation-delay: 0.9s; }
+      .viz-node:nth-of-type(5) { animation-delay: 1.2s; }
+      .viz-node:nth-of-type(6) { animation-delay: 1.5s; }
+      .viz-node:nth-of-type(7) { animation-delay: 1.8s; }
+
+      .viz-edge { stroke: rgba(243, 230, 214, 0.13); stroke-width: 1.2; fill: none; }
+      .viz-flow {
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-dasharray: 3 12;
+        animation: vizDash 1.1s linear infinite;
+      }
+      .viz-flow.clay { stroke: #e2875a; filter: drop-shadow(0 0 4px rgba(226, 135, 90, 0.55)); }
+      .viz-flow.teal { stroke: #57b8b8; filter: drop-shadow(0 0 4px rgba(87, 184, 184, 0.5)); }
+      .viz-flow.gold { stroke: #e8bb6c; filter: drop-shadow(0 0 4px rgba(232, 187, 108, 0.5)); }
+      .viz-flow.slow { animation-duration: 1.6s; }
+
+      .viz-dot {
+        offset-distance: 0%;
+        animation: vizMove 2.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        filter: drop-shadow(0 0 5px rgba(232, 187, 108, 0.85));
+      }
+      .viz-dot.d2 { animation-delay: 0.8s; }
+      .viz-dot.d3 { animation-delay: 1.5s; }
+
+      .viz-chip { fill: rgba(243, 230, 214, 0.05); stroke: rgba(243, 230, 214, 0.22); rx: 8; }
+      .viz-label { fill: rgba(243, 230, 214, 0.82); font-family: var(--mono); font-size: 13px; text-anchor: middle; }
+      .viz-tag { fill: rgba(243, 230, 214, 0.45); font-family: var(--mono); font-size: 11px; }
+
+      .viz-pt {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: vizPop 3.2s ease-in-out infinite;
+      }
+      .viz-pt:nth-of-type(2) { animation-delay: 0.4s; }
+      .viz-pt:nth-of-type(3) { animation-delay: 0.8s; }
+      .viz-pt:nth-of-type(4) { animation-delay: 1.2s; }
+      .viz-pt:nth-of-type(5) { animation-delay: 1.6s; }
+
+      .viz-loss {
+        fill: none;
+        stroke: #57b8b8;
+        stroke-width: 2.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1100;
+        stroke-dashoffset: 1100;
+        animation: vizTrace 5s ease-in-out infinite;
+        filter: drop-shadow(0 0 5px rgba(87, 184, 184, 0.4));
+      }
+      .viz-tracer {
+        offset-distance: 0%;
+        animation: vizTracer 5s ease-in-out infinite;
+        filter: drop-shadow(0 0 6px rgba(87, 184, 184, 0.9));
+      }
+      .viz-axis { stroke: rgba(243, 230, 214, 0.2); stroke-width: 1; }
+      .viz-grid { stroke: rgba(243, 230, 214, 0.07); stroke-width: 1; }
+
+      .viz-ball {
+        offset-distance: 0%;
+        animation: vizRoll 4.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        filter: drop-shadow(0 0 6px rgba(226, 135, 90, 0.9));
+      }
+      .viz-ghost { offset-distance: 0%; animation: vizRoll 4.4s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+      .viz-ghost.g1 { animation-delay: 0.12s; }
+      .viz-ghost.g2 { animation-delay: 0.24s; }
+      .viz-ghost.g3 { animation-delay: 0.36s; }
+
+      @keyframes vizPulse { 0%, 100% { transform: scale(0.82); opacity: 0.55; } 50% { transform: scale(1.08); opacity: 1; } }
+      @keyframes vizDash { to { stroke-dashoffset: -15; } }
+      @keyframes vizMove { 0% { offset-distance: 0%; } 78% { offset-distance: 100%; } 100% { offset-distance: 100%; } }
+      @keyframes vizPop { 0%, 100% { transform: scale(0.5); opacity: 0.3; } 50% { transform: scale(1); opacity: 1; } }
+      @keyframes vizTrace { 0% { stroke-dashoffset: 1100; } 62% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+      @keyframes vizTracer { 0% { offset-distance: 0%; } 62% { offset-distance: 100%; } 100% { offset-distance: 100%; } }
+      @keyframes vizRoll { 0% { offset-distance: 0%; } 68% { offset-distance: 100%; } 100% { offset-distance: 100%; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .demo * { animation: none !important; }
+        .viz-loss { stroke-dashoffset: 0; }
+        .viz-flow { stroke-dasharray: none; opacity: 0.7; }
+      }
+    </style>
+  </head>
+  <body class="site-body">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">Engineering notes</p>
+        <a class="brand-link" href="../index.html">agent-system-patterns</a>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="../index.html">All notes</a>
+        <a href="https://github.com/sushant-97/agent-system-patterns">GitHub</a>
+      </nav>
+    </header>
+
+    <main class="article-page">
+      <div class="article-wrap">
+        <aside class="article-rail" aria-label="Share this note">
+          <a class="rail-btn" href="../index.html" aria-label="Back to all notes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+          </a>
+          <div class="rail-sep"></div>
+          <a class="rail-btn" href="https://twitter.com/intent/tweet?text=AI%2C%20in%20motion&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fai-in-motion.html" target="_blank" rel="noopener" aria-label="Share on X">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+          </a>
+          <a class="rail-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fai-in-motion.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+          </a>
+        </aside>
+
+        <article class="article">
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a>
+            <span class="sep">/</span>
+            <a href="../index.html#posts">Posts</a>
+            <span class="sep">/</span>
+            <span class="current">AI, in motion</span>
+          </nav>
+
+          <h1 class="article-title">AI, <span class="grad">in motion.</span></h1>
+          <p class="article-subtitle">Agent System Patterns · Showcase</p>
+
+          <div class="article-byline">
+            <div class="byline-id">
+              <span class="avatar">SP</span>
+              <div class="byline-meta">
+                <span class="byline-name">Sushant Pargaonkar</span>
+                <span class="byline-date">June 2026 · 3 min read</span>
+              </div>
+            </div>
+            <div class="byline-share">
+              <a class="share-btn" href="https://twitter.com/intent/tweet?text=AI%2C%20in%20motion&url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fai-in-motion.html" target="_blank" rel="noopener" aria-label="Share on X">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" /></svg>
+              </a>
+              <a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fsushant-97.github.io%2Fagent-system-patterns%2Fpatterns%2Fai-in-motion.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14ZM7.12 20.45H3.55V9h3.57v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="article-body">
+            <figure class="demo">
+              <svg viewBox="0 0 560 300" role="img" aria-label="Animated neural network with signals flowing between nodes">
+                <g>
+                  <line class="viz-edge" x1="70" y1="90" x2="280" y2="55" />
+                  <line class="viz-flow clay" x1="70" y1="90" x2="280" y2="125" />
+                  <line class="viz-edge" x1="70" y1="90" x2="280" y2="195" />
+                  <line class="viz-edge" x1="70" y1="90" x2="280" y2="265" />
+                  <line class="viz-flow teal slow" x1="70" y1="150" x2="280" y2="55" />
+                  <line class="viz-edge" x1="70" y1="150" x2="280" y2="125" />
+                  <line class="viz-flow gold" x1="70" y1="150" x2="280" y2="195" />
+                  <line class="viz-edge" x1="70" y1="150" x2="280" y2="265" />
+                  <line class="viz-edge" x1="70" y1="210" x2="280" y2="55" />
+                  <line class="viz-edge" x1="70" y1="210" x2="280" y2="125" />
+                  <line class="viz-edge" x1="70" y1="210" x2="280" y2="195" />
+                  <line class="viz-flow clay slow" x1="70" y1="210" x2="280" y2="265" />
+                  <line class="viz-flow teal" x1="280" y1="55" x2="490" y2="120" />
+                  <line class="viz-edge" x1="280" y1="55" x2="490" y2="190" />
+                  <line class="viz-edge" x1="280" y1="125" x2="490" y2="120" />
+                  <line class="viz-flow gold slow" x1="280" y1="125" x2="490" y2="190" />
+                  <line class="viz-edge" x1="280" y1="195" x2="490" y2="120" />
+                  <line class="viz-flow clay" x1="280" y1="195" x2="490" y2="190" />
+                  <line class="viz-edge" x1="280" y1="265" x2="490" y2="120" />
+                  <line class="viz-flow teal slow" x1="280" y1="265" x2="490" y2="190" />
+                </g>
+                <circle class="viz-dot" r="3.6" fill="#e8bb6c" style="offset-path: path('M70 150 L280 125')" />
+                <circle class="viz-dot d2" r="3.6" fill="#57b8b8" style="offset-path: path('M280 195 L490 120')" />
+                <circle class="viz-dot d3" r="3.6" fill="#e2875a" style="offset-path: path('M70 90 L280 195')" />
+                <g>
+                  <circle class="viz-node" cx="70" cy="90" r="9" fill="#e2875a" />
+                  <circle class="viz-node" cx="70" cy="150" r="9" fill="#e2875a" />
+                  <circle class="viz-node" cx="70" cy="210" r="9" fill="#e2875a" />
+                  <circle class="viz-node" cx="280" cy="55" r="10" fill="#efe6d6" />
+                  <circle class="viz-node" cx="280" cy="125" r="10" fill="#efe6d6" />
+                  <circle class="viz-node" cx="280" cy="195" r="10" fill="#efe6d6" />
+                  <circle class="viz-node" cx="280" cy="265" r="10" fill="#efe6d6" />
+                  <circle class="viz-node" cx="490" cy="120" r="9" fill="#57b8b8" />
+                  <circle class="viz-node" cx="490" cy="190" r="9" fill="#57b8b8" />
+                </g>
+                <text class="viz-tag" x="70" y="265" text-anchor="middle">input</text>
+                <text class="viz-tag" x="280" y="295" text-anchor="middle">hidden</text>
+                <text class="viz-tag" x="490" y="225" text-anchor="middle">output</text>
+              </svg>
+              <figcaption>A network thinking out loud — pulses ride the live edges, nodes breathe.</figcaption>
+            </figure>
+
+            <p class="article-lead">
+              A short detour from the usual notes. No framework, no verdict — just a few ideas from AI,
+              drawn in motion. Every diagram on this page is plain <strong>SVG and CSS</strong>: no
+              libraries, no canvas, no video. View source and take whatever's useful.
+            </p>
+
+            <h2>Words become vectors</h2>
+            <p>
+              Before a model can reason about language, each token is mapped to a point in a
+              high-dimensional space. Here the tokens light up in turn and their meaning streams down
+              into the cloud as glowing trails.
+            </p>
+
+            <figure class="demo">
+              <svg viewBox="0 0 560 300" role="img" aria-label="Tokens flowing down into a vector space as trails">
+                <g>
+                  <rect class="viz-chip" x="42" y="34" width="78" height="30" />
+                  <rect class="viz-chip" x="148" y="34" width="78" height="30" />
+                  <rect class="viz-chip" x="254" y="34" width="78" height="30" />
+                  <rect class="viz-chip" x="360" y="34" width="78" height="30" />
+                  <rect class="viz-chip" x="452" y="34" width="78" height="30" />
+                  <text class="viz-label" x="81" y="54">the</text>
+                  <text class="viz-label" x="187" y="54">cat</text>
+                  <text class="viz-label" x="293" y="54">sat</text>
+                  <text class="viz-label" x="399" y="54">on</text>
+                  <text class="viz-label" x="491" y="54">mat</text>
+                </g>
+                <rect x="120" y="196" width="320" height="86" rx="14" fill="none" stroke="rgba(243,230,214,0.16)" />
+                <text class="viz-tag" x="280" y="276" text-anchor="middle">vector space</text>
+                <path class="viz-flow gold" d="M81 66 Q120 150 188 232" />
+                <path class="viz-flow teal slow" d="M187 66 Q210 150 244 218" />
+                <path class="viz-flow clay" d="M293 66 Q300 150 300 238" />
+                <path class="viz-flow gold slow" d="M399 66 Q380 150 356 222" />
+                <path class="viz-flow teal" d="M491 66 Q450 150 408 234" />
+                <circle class="viz-dot" r="3.4" fill="#e8bb6c" style="offset-path: path('M81 66 Q120 150 188 232')" />
+                <circle class="viz-dot d2" r="3.4" fill="#57b8b8" style="offset-path: path('M293 66 Q300 150 300 238')" />
+                <circle class="viz-dot d3" r="3.4" fill="#e2875a" style="offset-path: path('M491 66 Q450 150 408 234')" />
+                <circle class="viz-pt" cx="188" cy="232" r="4" fill="#e8bb6c" />
+                <circle class="viz-pt" cx="244" cy="218" r="4" fill="#57b8b8" />
+                <circle class="viz-pt" cx="300" cy="238" r="4" fill="#e2875a" />
+                <circle class="viz-pt" cx="356" cy="222" r="4" fill="#e8bb6c" />
+                <circle class="viz-pt" cx="408" cy="234" r="4" fill="#57b8b8" />
+              </svg>
+              <figcaption>Tokens in, coordinates out — meaning as a position you can measure.</figcaption>
+            </figure>
+
+            <h2>Attention: who looks at whom</h2>
+            <p>
+              A transformer lets every token decide how much to weigh every other. The thicker, brighter
+              the arc, the more one word is paying attention to another. Watch the strongest link carry a
+              pulse.
+            </p>
+
+            <figure class="demo">
+              <svg viewBox="0 0 560 300" role="img" aria-label="Attention arcs from a query token to key tokens">
+                <g>
+                  <rect class="viz-chip" x="40" y="34" width="74" height="30" />
+                  <rect class="viz-chip" x="142" y="34" width="74" height="30" />
+                  <rect class="viz-chip" x="244" y="34" width="74" height="30" />
+                  <rect class="viz-chip" x="346" y="34" width="74" height="30" />
+                  <rect class="viz-chip" x="448" y="34" width="74" height="30" />
+                  <text class="viz-label" x="77" y="54">she</text>
+                  <text class="viz-label" x="179" y="54">fed</text>
+                  <text class="viz-label" x="281" y="54">the</text>
+                  <text class="viz-label" x="383" y="54">tired</text>
+                  <text class="viz-label" x="485" y="54">cat</text>
+                </g>
+                <path class="viz-flow teal slow" style="stroke-width: 1.4" d="M280 232 Q150 150 77 66" />
+                <path class="viz-flow gold slow" style="stroke-width: 2" d="M280 232 Q210 150 179 66" />
+                <path class="viz-flow teal slow" style="stroke-width: 1.4" d="M280 232 Q270 150 281 66" />
+                <path class="viz-flow clay" style="stroke-width: 3.4" d="M280 232 Q330 150 383 66" />
+                <path class="viz-flow clay" style="stroke-width: 4" d="M280 232 Q380 150 485 66" />
+                <circle class="viz-dot" r="3.8" fill="#e2875a" style="offset-path: path('M280 232 Q380 150 485 66')" />
+                <rect x="240" y="232" width="80" height="32" rx="8" fill="rgba(226,135,90,0.16)" stroke="#e2875a" />
+                <text class="viz-label" x="280" y="253" style="fill:#f1d9c4">cat ◂</text>
+                <text class="viz-tag" x="280" y="288" text-anchor="middle">query attends to keys</text>
+              </svg>
+              <figcaption>Every word weighs every other; the bold arcs win the most attention.</figcaption>
+            </figure>
+
+            <h2>Learning is rolling downhill</h2>
+            <p>
+              Training is mostly one move repeated: nudge the weights in the direction that lowers the
+              error, and roll a little further into the valley. The ghosts are where the ball just was —
+              the path it carved getting here.
+            </p>
+
+            <figure class="demo">
+              <svg viewBox="0 0 560 300" role="img" aria-label="A ball rolling down a loss curve into the valley, leaving a trail">
+                <path d="M40 60 C150 250 200 250 280 250 C360 250 410 250 520 60" fill="none" stroke="rgba(243,230,214,0.16)" stroke-width="2" />
+                <line class="viz-grid" x1="280" y1="60" x2="280" y2="258" />
+                <circle class="viz-ghost g3" r="6" fill="rgba(226,135,90,0.18)" style="offset-path: path('M40 60 C150 250 200 250 280 250')" />
+                <circle class="viz-ghost g2" r="7" fill="rgba(226,135,90,0.3)" style="offset-path: path('M40 60 C150 250 200 250 280 250')" />
+                <circle class="viz-ghost g1" r="8" fill="rgba(226,135,90,0.5)" style="offset-path: path('M40 60 C150 250 200 250 280 250')" />
+                <circle class="viz-ball" r="9" fill="#e2875a" style="offset-path: path('M40 60 C150 250 200 250 280 250')" />
+                <text class="viz-tag" x="280" y="282" text-anchor="middle">minimum</text>
+                <text class="viz-tag" x="46" y="50">loss</text>
+              </svg>
+              <figcaption>Gradient descent — small steps downhill until the slope runs out.</figcaption>
+            </figure>
+
+            <h2>Watching a model train</h2>
+            <p>
+              Plot that error after every step and you get the shape every practitioner knows: jagged,
+              impatient, but trending down. Here the curve draws itself, over and over.
+            </p>
+
+            <figure class="demo">
+              <svg viewBox="0 0 560 280" role="img" aria-label="A training loss curve drawing itself with a leading dot">
+                <line class="viz-grid" x1="52" y1="80" x2="520" y2="80" />
+                <line class="viz-grid" x1="52" y1="140" x2="520" y2="140" />
+                <line class="viz-grid" x1="52" y1="200" x2="520" y2="200" />
+                <line class="viz-axis" x1="52" y1="40" x2="52" y2="240" />
+                <line class="viz-axis" x1="52" y1="240" x2="524" y2="240" />
+                <path class="viz-loss" d="M58 58 L98 118 L138 96 L178 158 L218 134 L258 182 L298 166 L338 200 L378 190 L418 210 L458 204 L498 216 L520 214" />
+                <circle class="viz-tracer" r="4.5" fill="#7fd4d4" style="offset-path: path('M58 58 L98 118 L138 96 L178 158 L218 134 L258 182 L298 166 L338 200 L378 190 L418 210 L458 204 L498 216 L520 214')" />
+                <text class="viz-tag" x="46" y="50" text-anchor="end">loss</text>
+                <text class="viz-tag" x="520" y="258" text-anchor="end">steps →</text>
+              </svg>
+              <figcaption>The same curve, on a loop — loud at first, then quietly converging.</figcaption>
+            </figure>
+
+            <h2>The point</h2>
+            <p>
+              None of this is a library. Each diagram is a few SVG shapes plus a handful of CSS
+              keyframes — flowing dashes for trails, motion paths for the moving dots, a dash offset to
+              draw a line on its own. Cheap, sharp at any size, and kind to a phone battery. If a future
+              note needs a diagram that <em>moves</em>, this is the toolkit.
+            </p>
+          </div>
+
+          <section class="article-cta">
+            <h2>Want the moving parts?</h2>
+            <p>The whole site is open source — every animation here is just SVG and CSS you can lift wholesale.</p>
+            <div class="button-row">
+              <a class="button button-primary" href="https://github.com/sushant-97/agent-system-patterns" target="_blank" rel="noopener">View the source</a>
+              <a class="button button-secondary" href="../index.html#posts">Back to the notes</a>
+            </div>
+          </section>
+
+          <section class="article-related">
+            <p class="eyebrow">More notes</p>
+            <div class="related-grid related-grid--three">
+              <a href="decision-time-guidance.html">
+                <span>Guidance</span>
+                <strong>Decision-Time Guidance</strong>
+                <p>Steer a fleet of agents at the moment of each decision, not with one giant prompt.</p>
+              </a>
+              <a href="self-verification-loop.html">
+                <span>Verification</span>
+                <strong>Self-Verification Loop</strong>
+                <p>Prove AI-built behavior works before it counts as done.</p>
+              </a>
+              <a href="the-founders-playbook.html">
+                <span>Perspective</span>
+                <strong>The Founder's Playbook, stress-tested</strong>
+                <p>A working engineer's read on Anthropic's AI-native startup playbook.</p>
+              </a>
+            </div>
+          </section>
+        </article>
+      </div>
+    </main>
+    <script src="../app.js"></script>
+  </body>
+</html>

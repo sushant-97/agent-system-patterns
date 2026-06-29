@@ -932,6 +932,12 @@ img {
   color: var(--accent-deep);
 }
 
+.post-thumb--showcase {
+  background: rgba(87, 184, 184, 0.12);
+  border-color: rgba(87, 184, 184, 0.3);
+  color: #2f8a8a;
+}
+
 .post-link:hover .post-thumb--icon svg {
   transform: scale(1.06);
   transition: transform 220ms ease;
